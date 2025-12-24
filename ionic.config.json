@@ -1,0 +1,7 @@
+{
+  "name": "JobBridge",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
