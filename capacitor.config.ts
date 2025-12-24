@@ -4,6 +4,7 @@ const config: CapacitorConfig = {
   appId: 'io.ionic.starter',
   appName: 'JobBridge',
   webDir: 'dist'
+  
 };
 
 export default config;
