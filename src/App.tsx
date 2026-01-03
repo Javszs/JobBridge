@@ -11,11 +11,11 @@ import {
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { ellipse, square, triangle, home, briefcase, person } from 'ionicons/icons';
+import { home, briefcase, person } from 'ionicons/icons';
 
 import Home from './Tabs/Home';
-import Tab2 from './Tabs/Tab2';
-import Tab3 from './Tabs/Tab3';
+import Jobs from './Tabs/Jobs';
+import Profile from './Tabs/Profile';
 import LoginPage from './pages/Login';
 
 /* Core CSS ... (keep all your existing CSS imports exactly as they are) */
@@ -35,7 +35,14 @@ import './theme/variables.css';
 setupIonicReact();
 
 const App: React.FC = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('isLoggedIn') === 'true';
+  });
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem('isLoggedIn');
+  };
 
   return (
     <IonApp>
@@ -46,7 +53,10 @@ const App: React.FC = () => {
             {isLoggedIn ? (
               <Redirect to="/tabs/Home" />
             ) : (
-              <LoginPage onLogin={() => setIsLoggedIn(true)} />
+              <LoginPage onLogin={() => {
+                setIsLoggedIn(true);
+                localStorage.setItem('isLoggedIn', 'true');
+              }} />
             )}
           </Route>
           
@@ -61,11 +71,9 @@ const App: React.FC = () => {
                     <Home />
                   </Route>
                   <Route exact path="/tabs/Jobs">
-                    <Tab2 />
+                    <Jobs />
                   </Route>
-                  <Route exact path="/tabs/Profile">
-                    <Tab3 />
-                  </Route>
+                  <Route exact path="/tabs/Profile" render={() => <Profile onLogout={handleLogout} />} />
                   <Route exact path="/tabs/">
                     <Redirect to="/tabs/Home" />
                   </Route>
