@@ -16,7 +16,7 @@ export const Logout = ({ onLogout }: LogoutProps) => {
   };
 
   return (
-    // Logout button component for reusing
+    // Logout button component for reusing maybe for sidebar
     <div style={{display: 'flex', justifyContent: 'center', marginTop: '20px', marginBottom: '20px'}}>
       <div style={{backgroundColor: 'red', border: '1px solid black', padding: '5px 70px', borderRadius: '5px'}}>
         <IonButton fill="clear" onClick={handleLogout} style={{color: 'white',fontWeight: 'bold', fontSize: '20px'}}>

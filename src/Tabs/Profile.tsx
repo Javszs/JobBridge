@@ -1,5 +1,5 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import { Logout } from '../components/logout';
+import { Logout } from '../components/Logout';
 import './Profile.css';
 
 interface ProfileProps {
