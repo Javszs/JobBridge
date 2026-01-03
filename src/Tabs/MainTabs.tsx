@@ -3,15 +3,15 @@ import { IonReactRouter } from '@ionic/react-router';
 import { Route, Redirect } from 'react-router-dom';
 import { triangle, square, ellipse } from 'ionicons/icons';
 
-import Tab1 from '../pages/Tab1';
-import Tab2 from '../pages/Tab2';
-import Tab3 from '../pages/Tab3';
+import Tab1 from './Home';
+import Tab2 from './Tab2';
+import Tab3 from './Tab3';
 
 const MainTabs: React.FC = () => (
   <IonReactRouter>
     <IonTabs>
       <IonRouterOutlet>
-        <Route exact path="/tab1">
+        <Route exact path="/Home">
           <Tab1 />
         </Route>
         <Route exact path="/tab2">

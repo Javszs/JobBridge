@@ -23,6 +23,7 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   margin: 0 15px;
   animation: slideUp 0.8s ease-out;
+  padding: 20px;
 }
 
 .options-row {
@@ -76,7 +77,6 @@ ion-button {
 
 ion-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(212, 160, 23, 0.3);
 }
 
 /* Input focus effects */

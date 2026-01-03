@@ -11,13 +11,12 @@ import {
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { ellipse, square, triangle } from 'ionicons/icons';
+import { ellipse, square, triangle, home, briefcase, person } from 'ionicons/icons';
 
-import Tab1 from './pages/Tab1';
-import Tab2 from './pages/Tab2';
-import Tab3 from './pages/Tab3';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
+import Home from './Tabs/Home';
+import Tab2 from './Tabs/Tab2';
+import Tab3 from './Tabs/Tab3';
+import LoginPage from './pages/Login';
 
 /* Core CSS ... (keep all your existing CSS imports exactly as they are) */
 import '@ionic/react/css/core.css';
@@ -45,52 +44,45 @@ const App: React.FC = () => {
           {/* Login Route */}
           <Route exact path="/login">
             {isLoggedIn ? (
-              <Redirect to="/tab1" />
+              <Redirect to="/tabs/Home" />
             ) : (
-              <Login onLogin={() => setIsLoggedIn(true)} />
+              <LoginPage onLogin={() => setIsLoggedIn(true)} />
             )}
           </Route>
           
-          {/* Signup Route */}
-          <Route exact path="/signup">
-            {isLoggedIn ? (
-              <Redirect to="/tab1" />
-            ) : (
-              <Signup onLogin={() => setIsLoggedIn(true)} />
-            )}
-          </Route>
+
 
           {/* Tabs Routes – only accessible when logged in */}
           <Route path="/tabs">
             {isLoggedIn ? (
               <IonTabs>
                 <IonRouterOutlet>
-                  <Route exact path="/tabs/tab1">
-                    <Tab1 />
+                  <Route exact path="/tabs/Home">
+                    <Home />
                   </Route>
-                  <Route exact path="/tabs/tab2">
+                  <Route exact path="/tabs/Jobs">
                     <Tab2 />
                   </Route>
-                  <Route exact path="/tabs/tab3">
+                  <Route exact path="/tabs/Profile">
                     <Tab3 />
                   </Route>
                   <Route exact path="/tabs/">
-                    <Redirect to="/tabs/tab1" />
+                    <Redirect to="/tabs/Home" />
                   </Route>
                 </IonRouterOutlet>
 
                 <IonTabBar slot="bottom">
-                  <IonTabButton tab="tab1" href="/tabs/tab1">
-                    <IonIcon aria-hidden="true" icon={triangle} />
-                    <IonLabel>Tab 1</IonLabel>
+                  <IonTabButton tab="Home" href="/tabs/Home">
+                    <IonIcon aria-hidden="true" icon={home} />
+                    <IonLabel>Home</IonLabel>
                   </IonTabButton>
-                  <IonTabButton tab="tab2" href="/tabs/tab2">
-                    <IonIcon aria-hidden="true" icon={ellipse} />
-                    <IonLabel>Tab 2</IonLabel>
+                  <IonTabButton tab="Jobs" href="/tabs/Jobs">
+                    <IonIcon aria-hidden="true" icon={briefcase} />
+                    <IonLabel>Jobs</IonLabel>
                   </IonTabButton>
-                  <IonTabButton tab="tab3" href="/tabs/tab3">
-                    <IonIcon aria-hidden="true" icon={square} />
-                    <IonLabel>Tab 3</IonLabel>
+                  <IonTabButton tab="Profile" href="/tabs/Profile">
+                    <IonIcon aria-hidden="true" icon={person} />
+                    <IonLabel>Profile</IonLabel>
                   </IonTabButton>
                 </IonTabBar>
               </IonTabs>
@@ -101,7 +93,7 @@ const App: React.FC = () => {
 
           {/* Default route – go to login if not logged in */}
           <Route exact path="/">
-            <Redirect to={isLoggedIn ? "/tabs/tab1" : "/login"} />
+            <Redirect to={isLoggedIn ? "/tabs/Home" : "/login"} />
           </Route>
         </IonRouterOutlet>
       </IonReactRouter>
