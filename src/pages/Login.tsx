@@ -24,7 +24,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         <div className="login-container">
           {/* Logo Section */}
           <div className="logo-section">
-            <img src="src/assets/Logo.png"  alt="Job Bridge Logo" 
+            <img src="https://i.ibb.co/4zCFc0g/job-bridge-removebg-preview.png"  alt="Job Bridge Logo" 
             style={{ width: '250px', height: 'auto' }} />
           </div>
 
