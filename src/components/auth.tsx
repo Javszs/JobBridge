@@ -83,11 +83,17 @@ export const Auth = ({ onSignUpClick, onLogin }: AuthProps) => {
   return (
     <>
       <div className="form-card">
-        <h2 style={{ textAlign: "center", marginBottom: "30px", fontWeight: "600" }}>
+        <h2 style={{ textAlign: "center", marginBottom: "30px", fontWeight: "600", color: "black" }}>
           {isSignUp ? "SIGN UP" : "LOGIN"}
         </h2>
         <form onSubmit={handleSubmit}>
-          <IonItem lines="full">
+          <IonItem lines="full" style={{
+              "--background": "white",
+                height: "50px",
+                "--color": "black",
+                border: "1.5px solid #000000ff",
+                borderRadius: "20px",
+              }}>
             <IonInput
               type="email"
               value={email}
@@ -99,7 +105,14 @@ export const Auth = ({ onSignUpClick, onLogin }: AuthProps) => {
             />
           </IonItem>
 
-          <IonItem lines="full" style={{ marginTop: "20px" }}>
+          <IonItem lines="full" style={{
+              marginTop: "20px",
+              "--background": "white",
+              height: "50px",
+              "--color": "black",
+              border: "1.5px solid #000000ff",
+              borderRadius: "20px",
+            }}>
             <IonInput
               type={showPassword ? "text" : "password"}
               value={password}
@@ -119,7 +132,14 @@ export const Auth = ({ onSignUpClick, onLogin }: AuthProps) => {
           </IonItem>
 
           {isSignUp && (
-            <IonItem lines="full" style={{ marginTop: "20px" }}>
+            <IonItem lines="full" style={{
+                marginTop: "20px",
+                "--background": "white",
+                height: "50px",
+                "--color": "black",
+                border: "1.5px solid #000000ff",
+                borderRadius: "20px",
+              }}>
               <IonInput
                 type={showPassword ? "text" : "password"}
                 value={confirmPassword}
