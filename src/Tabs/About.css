@@ -1,8 +1,8 @@
 /* About.css - Clean, modern mobile About Us inspired by premium Dribbble shots */
 
 .about-content {
-  --background: #3168B9;  /* Your deep blue base */
-  background: linear-gradient(to bottom, #3168B9 0%, #2a5aa1 100%);
+  --background: #0BACE1;  /* Your deep blue base */
+  background: linear-gradient(to bottom, #0BACE1 0%, #2a5aa1 100%);
   color: #ffffff;
 }
 
