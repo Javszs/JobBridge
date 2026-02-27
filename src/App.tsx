@@ -11,12 +11,13 @@ import {
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { home, briefcase, person } from 'ionicons/icons';
+import { home, briefcase, person, informationCircleOutline } from 'ionicons/icons';
 
 import Home from './Tabs/Home';
 import Jobs from './Tabs/Jobs';
 import Profile from './Tabs/Profile';
 import LoginPage from './pages/Login';
+import About from './Tabs/About';
 
 /* Core CSS ... (keep all your existing CSS imports exactly as they are) */
 import '@ionic/react/css/core.css';
@@ -73,6 +74,9 @@ const App: React.FC = () => {
                   <Route exact path="/tabs/Jobs">
                     <Jobs />
                   </Route>
+                  <Route exact path="/tabs/About">
+                    <About />
+                  </Route>
                   <Route exact path="/tabs/Profile" render={() => <Profile onLogout={handleLogout} />} />
                   <Route exact path="/tabs/">
                     <Redirect to="/tabs/Home" />
@@ -87,6 +91,10 @@ const App: React.FC = () => {
                   <IonTabButton tab="Jobs" href="/tabs/Jobs">
                     <IonIcon aria-hidden="true" icon={briefcase} />
                     <IonLabel>Jobs</IonLabel>
+                  </IonTabButton>
+                  <IonTabButton tab="About" href="/tabs/About">
+                    <IonIcon aria-hidden="true" icon={informationCircleOutline} />
+                    <IonLabel>About</IonLabel>
                   </IonTabButton>
                   <IonTabButton tab="Profile" href="/tabs/Profile">
                     <IonIcon aria-hidden="true" icon={person} />

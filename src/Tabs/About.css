@@ -1,0 +1,101 @@
+/* About.css - Clean, modern mobile About Us inspired by premium Dribbble shots */
+
+.about-content {
+  --background: #3168B9;  /* Your deep blue base */
+  background: linear-gradient(to bottom, #3168B9 0%, #2a5aa1 100%);
+  color: #ffffff;
+}
+
+.about-hero {
+  padding: 60px 24px 40px;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(49, 104, 185, 0.9), rgba(42, 90, 161, 0.9));
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.hero-title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin: 0 0 12px;
+  line-height: 1.1;
+  color: #ffffff;
+  letter-spacing: -1px;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  margin: 0;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.about-sections {
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.about-card {
+  background: rgba(173, 216, 230, 0.95);  /* #ADD8E6 with slight transparency for depth */
+  border-radius: 24px;
+  padding: 28px 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(8px); /* modern frosted glass feel if supported */
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #0d1b4c;  /* dark navy text for high contrast on light blue */
+}
+
+.section-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 16px;
+  color: #0d1b4c;
+}
+
+.about-card p {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  margin: 0;
+  opacity: 0.95;
+}
+
+.highlight {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
+  border-left: 6px solid #007AFF;
+}
+
+.cta-wrapper {
+  padding: 32px 20px 60px;
+  text-align: center;
+}
+
+.cta-button {
+  width: 100%;
+  max-width: 340px;
+  padding: 18px 24px;
+  background: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 122, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.cta-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
+}
+
+/* Larger phones / small tablets */
+@media (min-width: 480px) {
+  .hero-title { font-size: 3.2rem; }
+  .about-sections { padding: 48px 32px; }
+  .about-card { padding: 36px 32px; }
+}
