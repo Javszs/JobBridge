@@ -1,7 +1,7 @@
 /* About.css - Clean, modern mobile About Us inspired by premium Dribbble shots */
 
 .about-content {
-  --background: #3168B9;  /* Your deep blue base */
+  --background: #0BACE1;  /* Your deep blue base */
   background: linear-gradient(to bottom, #3168B9 0%, #2a5aa1 100%);
   color: #ffffff;
 }
@@ -9,7 +9,7 @@
 .about-hero {
   padding: 60px 24px 40px;
   text-align: center;
-  background: linear-gradient(135deg, rgba(49, 104, 185, 0.9), rgba(42, 90, 161, 0.9));
+  background: #0BACE1;
   border-bottom-left-radius: 40px;
   border-bottom-right-radius: 40px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
