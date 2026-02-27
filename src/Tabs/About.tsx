@@ -10,12 +10,6 @@ const About: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader translucent>
-        <IonToolbar>
-          <IonTitle>About Us</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-
       <IonContent fullscreen className="about-content">
         {/* Large title when collapsed */}
         <IonHeader collapse="condense">
