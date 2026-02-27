@@ -1,3 +1,5 @@
+// Jayve Espira
+
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
 import './About.css';
 
