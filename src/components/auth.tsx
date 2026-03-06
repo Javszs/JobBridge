@@ -1,209 +1,271 @@
-import { useState, FormEvent, ChangeEvent } from "react";
-import { supabase } from "../supabaseClient";
+import React, { useState } from 'react';
 import {
-  IonItem,
+  IonContent,
   IonInput,
   IonButton,
   IonIcon,
-  IonCheckbox,
-  IonLabel,
   IonToast,
-} from "@ionic/react";
-import { eye, eyeOff } from "ionicons/icons";
-import { useHistory } from "react-router";
+  IonItem,
+  IonNote,
+} from '@ionic/react';
+import { eye, eyeOff, mailOutline, lockClosedOutline } from 'ionicons/icons';
+import { supabase } from '../supabaseClient'; // adjust path
 
 interface AuthProps {
   onSignUpClick?: () => void;
   onLogin?: () => void;
 }
 
-export const Auth = ({ onSignUpClick, onLogin }: AuthProps) => {
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
+  const [view, setView] = useState<'seeker-login' | 'recruiter-login' | 'signup'>('seeker-login');
+
+  // Shared login fields
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  // Signup fields
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [selectedRole, setSelectedRole] = useState<'seeker' | 'recruiter' | null>(null);
+
+  const [toastMsg, setToastMsg] = useState('');
+  const [toastColor, setToastColor] = useState<'success' | 'danger'>('success');
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastColor, setToastColor] = useState<"success" | "danger" | "warning">("success");
-  const history = useHistory();
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  // ─── Login Handlers ────────────────────────────────────────────────
+  const handleLogin = async (role: 'seeker' | 'recruiter') => {
+    if (!email || !password) return showError('Please enter email and password');
 
-    if (isSignUp) {
-      if (password !== confirmPassword) {
-        setToastMessage("Passwords do not match");
-        setToastColor("danger");
-        setShowToast(true);
-        return;
-      }
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return showError(error.message);
 
-      setToastMessage("Email sent for verification");
-      setToastColor("success");
-      setShowToast(true);
+    showSuccess(`Logged in as ${role === 'seeker' ? 'Job Seeker' : 'Recruiter'}`);
+    onLogin?.();
+  };
 
-      const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-      if (signUpError) {
-        setToastMessage("Error signing up: " + signUpError.message);
-        setToastColor("danger");
-        setShowToast(true);
-        return;
-      }
-    } else {
-      setToastMessage("Logging in");
-      setToastColor("success");
-      setShowToast(true);
-
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (signInError) {
-        setToastMessage("Wrong Email or Password");
-        setToastColor("danger");
-        setShowToast(true);
-        return;
-      } else {
-        // Successful login, navigate to home
-        onLogin?.();
-        history.replace('/tabs/Home');
-      }
+  // ─── Signup Handler ────────────────────────────────────────────────
+  const handleSignUp = async () => {
+    if (!firstName || !lastName || !email || !phone || !password || !confirmPassword) {
+      return showError('Please fill all fields');
     }
+    if (password !== confirmPassword) return showError('Passwords do not match');
+    if (!selectedRole) return showError('Please choose your role');
+
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) return showError(error.message);
+
+    if (data.user) {
+      await supabase.from('profiles').upsert({
+        id: data.user.id,
+        first_name: firstName,
+        last_name: lastName,
+        phone,
+        role: selectedRole,
+      });
+    }
+
+    showSuccess('Sign up successful — please check your email');
+    onSignUpClick?.();
+    setView('seeker-login');
   };
 
-  const handleSwitchMode = () => {
-    setIsSignUp(!isSignUp);
-    onSignUpClick?.();
+  // ─── Helpers ───────────────────────────────────────────────────────
+  const showError = (msg: string) => {
+    setToastMsg(msg);
+    setToastColor('danger');
+    setShowToast(true);
   };
+
+  const showSuccess = (msg: string) => {
+    setToastMsg(msg);
+    setToastColor('success');
+    setShowToast(true);
+  };
+
+  const resetLoginForm = () => {
+    setEmail('');
+    setPassword('');
+  };
+
+  const resetSignupForm = () => {
+    setFirstName('');
+    setLastName('');
+    setPhone('');
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+    setSelectedRole(null);
+  };
+
+  // ─── Render Logic ──────────────────────────────────────────────────
+  const isLoginView = view === 'seeker-login' || view === 'recruiter-login';
+  const currentRole = view === 'seeker-login' ? 'seeker' : 'recruiter';
 
   return (
-    <>
-      <div className="form-card">
-        <h2 style={{ textAlign: "center", marginBottom: "30px", fontWeight: "600", color: "black" }}>
-          {isSignUp ? "SIGN UP" : "LOGIN"}
-        </h2>
-        <form onSubmit={handleSubmit}>
-          <IonItem lines="full" style={{
-              "--background": "white",
-                height: "50px",
-                "--color": "black",
-                border: "1.5px solid #000000ff",
-                borderRadius: "20px",
-              }}>
-            <IonInput
-              type="email"
-              value={email}
-              onIonChange={(e) =>
-                setEmail(e.detail.value!)
-              }
-              placeholder="Email"
-              clearInput
-            />
-          </IonItem>
+    <IonContent fullscreen className="auth-gradient-bg" scrollX={false} scrollY={false}>
+      <div className="auth-container">
+        {isLoginView ? (
+          // ─── LOGIN FORM ───────────────────────────────────────────────
+          <div className="auth-panel">
+            <div className="auth-panel-header">
+              <h2 className="auth-panel-title">Welcome Back!</h2>
+              <p>Sign in as a {view === 'seeker-login' ? 'Job Seeker' : 'Recruiter'}</p>
+            </div>
 
-          <IonItem lines="full" style={{
-              marginTop: "20px",
-              "--background": "white",
-              height: "50px",
-              "--color": "black",
-              border: "1.5px solid #000000ff",
-              borderRadius: "20px",
-            }}>
-            <IonInput
-              type={showPassword ? "text" : "password"}
-              value={password}
-              placeholder="Password"
-              onIonChange={(e) =>
-                setPassword(e.detail.value!)
-              }
-              clearInput
-            />
-            <IonButton
-              slot="end"
-              fill="clear"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              <IonIcon icon={showPassword ? eye : eyeOff} />
-            </IonButton>
-          </IonItem>
-
-          {isSignUp && (
-            <IonItem lines="full" style={{
-                marginTop: "20px",
-                "--background": "white",
-                height: "50px",
-                "--color": "black",
-                border: "1.5px solid #000000ff",
-                borderRadius: "20px",
-              }}>
+            <IonItem className="auth-input-item">
+              <IonIcon icon={mailOutline} slot="start" />
               <IonInput
-                type={showPassword ? "text" : "password"}
-                value={confirmPassword}
-                placeholder="Confirm Password"
-                onIonChange={(e) =>
-                  setConfirmPassword(e.detail.value!)
-                }
-                clearInput
+                type="email"
+                placeholder="Email"
+                value={email}
+                onIonChange={e => setEmail(e.detail.value ?? '')}
               />
             </IonItem>
-          )}
 
-          <IonButton
-            type="submit"
-            expand="block"
-            shape="round"
-            style={{
-              marginTop: "30px",
-              "--background": "linear-gradient(135deg, #eadf66ff 0%, #ada777ff 100%)",
-              "--border-radius": "50px",
-              height: "50px",
-              "--color": "white",
-              fontWeight: "bold",
-            } as any}
-          >
-            <strong>{isSignUp ? "Sign Up" : "Log In"}</strong>
-          </IonButton>
-        </form>
+            <IonItem className="auth-input-item">
+              <IonIcon icon={lockClosedOutline} slot="start" />
+              <IonInput
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Password"
+                value={password}
+                onIonChange={e => setPassword(e.detail.value ?? '')}
+              />
+              <IonButton fill="clear" slot="end" onClick={() => setShowPassword(!showPassword)}>
+                <IonIcon icon={showPassword ? eye : eyeOff} />
+              </IonButton>
+            </IonItem>
 
-        <div style={{ textAlign: "center", marginTop: "20px" }}>
-          <button
-            type="button"
-            onClick={handleSwitchMode}
-            style={{
-              marginTop: "25px",
-              background: "none",
-              border: "none",
-              color: "#667eea",
-              cursor: "pointer",
-              fontSize: "0.9rem",
-              fontWeight: "500",
-              textDecoration: "underline",
-            }}
-            onMouseEnter={(e) =>
-              ((e.target as HTMLButtonElement).style.color = "#667eea")
-            }
-            onMouseLeave={(e) =>
-              ((e.target as HTMLButtonElement).style.color = "#667eea")
-            }
-          >
-            {isSignUp
-              ? "Already have an account? Log In!"
-              : "Not a member yet? Sign Up!"}
-          </button>
-        </div>
+            <IonNote className="auth-forgot-link">Forgot Password?</IonNote>
+
+            <IonButton
+              expand="block"
+              className="auth-btn"
+              onClick={() => handleLogin(currentRole)}
+            >
+              Login
+            </IonButton>
+
+            <div className="auth-divider"><span>OR</span></div>
+
+            <IonButton expand="block" fill="outline" className="auth-google-btn">
+              Login with Google
+            </IonButton>
+
+            <p className="auth-switch-link" onClick={() => {
+              setView(view === 'seeker-login' ? 'recruiter-login' : 'seeker-login');
+              resetLoginForm();
+            }}>
+              ← Change Role
+            </p>
+
+            <p className="auth-signup-prompt" onClick={() => {
+              setView('signup');
+              resetSignupForm();
+            }}>
+              Don't have an account? <strong>Signup!</strong>
+            </p>
+          </div>
+        ) : (
+          // ─── SIGNUP FORM ─────────────────────────────────────────────
+          <div className="auth-panel">
+            <div className="auth-panel-header">
+              <h2 className="auth-panel-title">Let's get started!</h2>
+            </div>
+
+            <IonItem className="auth-input-item">
+              <IonInput
+                placeholder="First Name"
+                value={firstName}
+                onIonChange={e => setFirstName(e.detail.value ?? '')}
+              />
+            </IonItem>
+
+            <IonItem className="auth-input-item">
+              <IonInput
+                placeholder="Last Name"
+                value={lastName}
+                onIonChange={e => setLastName(e.detail.value ?? '')}
+              />
+            </IonItem>
+
+            <IonItem className="auth-input-item">
+              <IonInput
+                type="email"
+                placeholder="Email"
+                value={email}
+                onIonChange={e => setEmail(e.detail.value ?? '')}
+              />
+            </IonItem>
+
+            <IonItem className="auth-input-item">
+              <IonInput
+                type="tel"
+                placeholder="Phone number"
+                value={phone}
+                onIonChange={e => setPhone(e.detail.value ?? '')}
+              />
+            </IonItem>
+
+            <IonItem className="auth-input-item">
+              <IonInput
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Password"
+                value={password}
+                onIonChange={e => setPassword(e.detail.value ?? '')}
+              />
+            </IonItem>
+
+            <IonItem className="auth-input-item">
+              <IonInput
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onIonChange={e => setConfirmPassword(e.detail.value ?? '')}
+              />
+            </IonItem>
+
+            <div className="auth-role-selection">
+              <IonButton
+                fill={selectedRole === 'seeker' ? 'solid' : 'outline'}
+                onClick={() => setSelectedRole('seeker')}
+              >
+                Job Seeker
+              </IonButton>
+              <IonButton
+                fill={selectedRole === 'recruiter' ? 'solid' : 'outline'}
+                onClick={() => setSelectedRole('recruiter')}
+              >
+                Recruiter
+              </IonButton>
+            </div>
+
+            <IonButton expand="block" className="auth-btn auth-signup-btn" onClick={handleSignUp}>
+              Signup
+            </IonButton>
+
+            <p className="auth-signup-prompt" onClick={() => {
+              setView('seeker-login');
+              resetLoginForm();
+            }}>
+              Already have an account? <strong>Login</strong>
+            </p>
+          </div>
+        )}
       </div>
 
       <IonToast
         isOpen={showToast}
         onDidDismiss={() => setShowToast(false)}
-        message={toastMessage}
-        duration={3000}
+        message={toastMsg}
+        duration={2800}
         color={toastColor}
+        position="top"
       />
-    </>
+    </IonContent>
   );
 };
+
+export default Auth;

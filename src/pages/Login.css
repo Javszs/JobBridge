@@ -1,97 +1,195 @@
+/* src/components/Auth.css - adjusted to match mockup (no cards, bordered inputs, white text) */
+
 .login-container {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-  margin: 0 auto;
-  background: rgb(255, 255, 255);
+  align-items: center;
+  justify-content: flex-start; /* keep panels below logo */
+  height: 100vh;
+  width: 100%;
+  padding: 230px 16px 16px; /* space at top for logo */
+  background: linear-gradient(135deg, #2196f3 0%, #1565c0 100%);
+  overflow: hidden;
+  box-sizing: border-box;
+  position: relative; /* for absolute positioned children like the logo */
+}
+
+/* make the overall content unscrollable */
+ion-content {
+  overflow: hidden !important;
 }
 
 .logo-section {
   display: flex;
+  align-items: center;
   justify-content: center;
-  animation: fadeIn 1s ease-in;
+  width: 100%;
+  padding: 0 0 8px 0;
+  flex-shrink: 0;
+  margin-bottom: 8px;
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
 }
 
-.form-card {
+
+.auth-gradient-bg {
+  --background: linear-gradient(135deg, #2196f3 0%, #1565c0 100%) !important;
+  /* You can tweak colors to better match your exact blue tones */
+}
+
+.auth-container {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  max-width: 400px;
-  align-self: center;
-  background: rgb(255, 255, 255);
-  backdrop-filter: blur(10px);
-  padding: 0px;
-  border-radius: 25px;
-  border: 1.5px solid black;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  margin: 0 15px;
-  animation: slideUp 0.8s ease-out;
-  padding: 20px;
-}
-
-.options-row {
   align-items: center;
-  margin-top: 20px;
+  justify-content: center;
+  width: 100%;
+  color: white;                       /* most text white */
+  flex: 1;
+  padding-bottom: 20px;
+  position: relative; /* relative to login container/logo */
 }
 
-.signup-text {
+.auth-panel {
+  /* No background / no card → content floats on gradient */
+  background: transparent;
+  width: 100%;
+  max-width: 350px;
   text-align: center;
-  margin-top: 40px;
-  margin-bottom: 40px;
-  animation: fadeIn 1.2s ease-in;
 }
 
-.signup-text u {
-  cursor: pointer;
-  color: #667eea;
-  font-weight: 500;
-  transition: color 0.3s ease;
+/* Headers - white text */
+.auth-panel-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 20px;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3); /* subtle readability on gradient */
 }
 
-.signup-text u:hover {
-  color: #764ba2;
+.auth-panel-header p {
+  font-size: 1.2rem;
+  color: rgba(255,255,255,0.9);
+  margin: 0 0 30px;
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(50px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* Button hover effect */
-ion-button {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-ion-button:hover {
-  transform: translateY(-2px);
-}
-
-/* Input focus effects */
-ion-item {
-  --border-radius: 15px;
-  --padding-start: 20px;
-  --inner-padding-end: 20px;
+/* Inputs - bordered, light background or transparent + border, WHITE text */
+.auth-input-item {
+  --background: transparent !important;
+  --border-radius: 12px;
+  --highlight-background: transparent;
+  --highlight-color: white;
   margin-bottom: 10px;
-  transition: border 0.3s ease;
+  border: 1.5px solid rgba(0, 0, 0, 0.7);
+  border-radius: 15px;
+  overflow: hidden;
+  color: white;
+  background-color: #67ade7;
+  min-height: 50px;
 }
 
-ion-item.item-has-focus {
-  border: 1px solid #667eea;
+.auth-input-item ion-input {
+  --color: white !important;                    /* typed text = white */
+  --placeholder-color: rgba(255, 255, 255, 0.65);
+  --placeholder-opacity: 1;
+  font-size: 1.2rem;
+  padding: 18px 20px;
+  color: white;
+}
+
+/* Icons in inputs (mail, lock) - make them white-ish */
+.auth-input-item ion-icon {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Forgot / links - light blue or white */
+.auth-forgot-link,
+.switch-link,
+.signup-prompt {
+  color: #ffffff;                 
+  font-size: 0.8rem;
+  margin: 4px 0 6px;
+  cursor: pointer;
+  display: block;
+}
+
+.signup-prompt strong {
+  color: white;
+  font-weight: 600;
+}
+
+/* Buttons */
+.auth-btn {
+  --background: #42a5f5 !important;         /* bright blue */
+  --background-activated: #2196f3;
+  --border-radius: 12px;
+  height: 40px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 8px 0 6px;
+  --color: white;
+  text-transform: none;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+.signup-btn {
+  --background: #1e88e5 !important;         /* slightly different blue for signup */
+}
+
+.auth-google-btn {
+  --background: rgba(51, 63, 117, 0.782) !important;
+  --background-activated: rgba(91, 103, 145, 0.945);
+  --border: 1.5px solid rgba(255, 255, 255, 0.6);
+  --border-radius: 12px;
+  --color: white;
+  margin: 4px 0;
+  height: 40px;
+  font-size: 0.9rem;
+}
+
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+  color: rgba(255,255,255,0.7);
+  font-size: 0.8rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.4);
+}
+
+.divider span {
+  padding: 0 20px;
+}
+
+/* Role buttons in signup */
+.auth-role-selection {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 12px 0;
+}
+
+.auth-role-selection ion-button {
+  --border-radius: 12px;
+  --border: 2px solid rgba(255,255,255,0.9);
+  --color: white;
+  --background: rgba(255,255,255,0.1);
+  --background-activated: rgba(255,255,255,0.2);
+  font-size: 1rem;
+  padding: 0 20px;
+}
+
+/* solid filled button (selected state) should stand out */
+.auth-role-selection ion-button[fill="solid"] {
+  --background: #ffffff;
+  --color: #1565c0;
 }

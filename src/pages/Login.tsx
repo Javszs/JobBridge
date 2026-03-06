@@ -4,8 +4,11 @@ import {
   IonContent
 } from '@ionic/react';
 
+// optionally you can store the logo locally in src/assets and import it like below
+// import logo from '../assets/job-bridge-logo.png';
+
 import { useState } from 'react';
-import { Auth } from '../components/auth';
+import Auth from '../components/auth';
 
 interface LoginProps {
   onLogin: () => void;
@@ -20,12 +23,17 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   return (
     <IonPage>
-      <IonContent fullscreen>
+      <IonContent fullscreen scrollY={false} scrollX={false}>
         <div className="login-container">
           {/* Logo Section */}
           <div className="logo-section">
-            <img src="https://i.ibb.co/4zCFc0g/job-bridge-removebg-preview.png"  alt="Job Bridge Logo" 
-            style={{ width: '250px', height: 'auto' }} />
+            {/* if using a local asset: <img src={logo} alt="Job Bridge Logo" className="logo-image" /> */}
+            <img
+              src="https://i.ibb.co/4zCFc0g/job-bridge-removebg-preview.png"
+              alt="Job Bridge Logo"
+              className="logo-image"
+              style={{ width: '250px', height: 'auto' }}
+            />
           </div>
 
           {/* Auth Component */}

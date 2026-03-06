@@ -18,6 +18,7 @@ import Jobs from './Tabs/Jobs';
 import Profile from './Tabs/Profile';
 import LoginPage from './pages/Login';
 import About from './Tabs/About';
+import Contacts from './Tabs/contact';
 
 /* Core CSS ... (keep all your existing CSS imports exactly as they are) */
 import '@ionic/react/css/core.css';
@@ -60,7 +61,6 @@ const App: React.FC = () => {
               }} />
             )}
           </Route>
-          
 
 
           {/* Tabs Routes – only accessible when logged in */}
@@ -76,6 +76,9 @@ const App: React.FC = () => {
                   </Route>
                   <Route exact path="/tabs/About">
                     <About />
+                  </Route>
+                  <Route exact path="/tabs/Contacts">
+                    <Contacts />
                   </Route>
                   <Route exact path="/tabs/Profile" render={() => <Profile onLogout={handleLogout} />} />
                   <Route exact path="/tabs/">
@@ -95,6 +98,10 @@ const App: React.FC = () => {
                   <IonTabButton tab="About" href="/tabs/About">
                     <IonIcon aria-hidden="true" icon={informationCircleOutline} />
                     <IonLabel>About</IonLabel>
+                  </IonTabButton>
+                  <IonTabButton tab="Contacts" href="/tabs/Contacts">
+                    <IonIcon aria-hidden="true" icon={informationCircleOutline} />
+                    <IonLabel>Contacts</IonLabel>
                   </IonTabButton>
                   <IonTabButton tab="Profile" href="/tabs/Profile">
                     <IonIcon aria-hidden="true" icon={person} />
