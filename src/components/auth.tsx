@@ -202,15 +202,6 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
 
             <IonItem className="auth-input-item">
               <IonInput
-                type="tel"
-                placeholder="Phone number"
-                value={phone}
-                onIonChange={e => setPhone(e.detail.value ?? '')}
-              />
-            </IonItem>
-
-            <IonItem className="auth-input-item">
-              <IonInput
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Password"
                 value={password}

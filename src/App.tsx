@@ -19,6 +19,7 @@ import Profile from './Tabs/Profile';
 import LoginPage from './pages/Login';
 import About from './Tabs/About';
 import Contacts from './Tabs/contact';
+import Splash from './pages/splashScreen';  
 
 /* Core CSS ... (keep all your existing CSS imports exactly as they are) */
 import '@ionic/react/css/core.css';
@@ -62,6 +63,7 @@ const App: React.FC = () => {
             )}
           </Route>
 
+          <Route exact path="/Splash" component={Splash} />
 
           {/* Tabs Routes – only accessible when logged in */}
           <Route path="/tabs">
@@ -114,10 +116,8 @@ const App: React.FC = () => {
             )}
           </Route>
 
-          {/* Default route – go to login if not logged in */}
-          <Route exact path="/">
-            <Redirect to={isLoggedIn ? "/tabs/Home" : "/login"} />
-          </Route>
+          {/*first screen */}
+          <Redirect exact from="/" to="/splash" />
         </IonRouterOutlet>
       </IonReactRouter>
     </IonApp>
