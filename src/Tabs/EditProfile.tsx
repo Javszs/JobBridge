@@ -23,7 +23,6 @@ import {
 } from '@ionic/react';
 import { supabase } from '../supabaseClient';
 import './EditProfile.css';
-import { colorFill } from 'ionicons/icons';
 
 const EditProfile: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -33,7 +32,7 @@ const EditProfile: React.FC = () => {
     firstname: '',
     lastname: '',
     phone: '',
-    gender: '',
+    gender: undefined as string | undefined,
     city: '',
   });
 
@@ -42,45 +41,51 @@ const EditProfile: React.FC = () => {
   }, []);
 
   const fetchProfile = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
 
-    const { data } = await supabase
-      .from('users')
-      .select('firstname, lastname, phone, gender, city')
-      .eq('id', user.id)
-      .single();
+  const { data, error } = await supabase
+    .from('users')
+    .select('firstname, lastname, phone, gender, city')
+    .eq('id', user.id)
+    .single();
 
-    if (data) {
-      setFormData({
-        firstname: data.firstname || '',
-        lastname: data.lastname || '',
-        phone: data.phone || '',
-        gender: data.gender || '',
-        city: data.city || '',
-      });
-    }
-  };
+  if (error) {
+    console.error('Error fetching profile:', error);
+    // Don't show error toast here - it's normal if user has no profile row yet
+    return;
+  }
 
-  const handleChange = (field: keyof typeof formData, value: string) => {
+  if (data) {
+    setFormData({
+      firstname: data.firstname || '',
+      lastname: data.lastname || '',
+      phone: data.phone || '',
+      gender: data.gender ? data.gender : undefined,
+      city: data.city || '',
+    });
+  }
+};
+
+  const handleChange = (field: keyof typeof formData, value: string | null | undefined) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSave = async () => {
-    setLoading(true);
+  setLoading(true);
 
+  try {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       setToast({ message: 'You must be logged in', color: 'danger' });
-      setLoading(false);
       return;
     }
 
     const { error } = await supabase
       .from('users')
       .update({
-        firstname: formData.firstname.trim(),
-        lastname: formData.lastname.trim(),
+        firstname: formData.firstname.trim() || null,
+        lastname: formData.lastname.trim() || null,
         phone: formData.phone.trim() || null,
         gender: formData.gender || null,
         city: formData.city.trim() || null,
@@ -89,14 +94,19 @@ const EditProfile: React.FC = () => {
       .eq('id', user.id);
 
     if (error) {
-      setToast({ message: error.message || 'Failed to update profile', color: 'danger' });
+      console.error("Save failed:", error);
+      setToast({ message: error.message || "Failed to save profile", color: 'danger' });
     } else {
-      setToast({ message: 'Profile updated successfully!', color: 'success' });
+      setToast({ message: "Profile saved successfully!", color: 'success' });
       setTimeout(() => window.history.back(), 1500);
     }
-
+  } catch (err) {
+    console.error(err);
+    setToast({ message: "Something went wrong", color: 'danger' });
+  } finally {
     setLoading(false);
-  };
+  }
+};
 
   return (
     <IonPage>
@@ -113,12 +123,13 @@ const EditProfile: React.FC = () => {
         <div className="edit-profile-container">
           <IonCard className="edit-card">
             <IonCardHeader>
-              <IonCardTitle>Profile Information</IonCardTitle>
+              <IonCardTitle>Personal Information</IonCardTitle>
             </IonCardHeader>
 
             <IonCardContent className="form-container">
               <IonList className="form-list">
-                <div className="custom-item">
+
+                <IonItem className="custom-item">
                   <IonLabel position="stacked" className="input-label">First Name</IonLabel>
                   <IonInput
                     value={formData.firstname}
@@ -126,9 +137,9 @@ const EditProfile: React.FC = () => {
                     placeholder="Enter first name"
                     clearInput
                   />
-                </div>
+                </IonItem>
 
-                <div className="custom-item">
+                <IonItem className="custom-item">
                   <IonLabel position="stacked" className="input-label">Last Name</IonLabel>
                   <IonInput
                     value={formData.lastname}
@@ -136,9 +147,9 @@ const EditProfile: React.FC = () => {
                     placeholder="Enter last name"
                     clearInput
                   />
-                </div>
+                </IonItem>
 
-                <div className="custom-item">
+                <IonItem className="custom-item">
                   <IonLabel position="stacked" className="input-label">Phone Number</IonLabel>
                   <IonInput
                     type="tel"
@@ -147,9 +158,9 @@ const EditProfile: React.FC = () => {
                     placeholder="09123456789"
                     clearInput
                   />
-                </div>
+                </IonItem>
 
-                <div className="custom-item">
+                <IonItem className="custom-item">
                   <IonLabel position="stacked" className="input-label">Gender</IonLabel>
                   <IonSelect
                     value={formData.gender}
@@ -158,19 +169,20 @@ const EditProfile: React.FC = () => {
                   >
                     <IonSelectOption value="male">Male</IonSelectOption>
                     <IonSelectOption value="female">Female</IonSelectOption>
-                    <IonSelectOption value="N/A">Prefer not to say</IonSelectOption>
+                    <IonSelectOption value={null}>Prefer not to say</IonSelectOption>
                   </IonSelect>
-                </div>
+                </IonItem>
 
-                <div className="custom-item">
+                <IonItem className="custom-item">
                   <IonLabel position="stacked" className="input-label">City / Address</IonLabel>
                   <IonInput
                     value={formData.city}
                     onIonChange={e => handleChange('city', e.detail.value!)}
-                    placeholder="e.g. Quezon City, Philippines"
+                    placeholder="e.g. Quezon City"
                     clearInput
                   />
-                </div>
+                </IonItem>
+
               </IonList>
 
               <IonButton
