@@ -20,6 +20,7 @@ import LoginPage from './pages/Login';
 import About from './Tabs/About';
 import Contacts from './Tabs/contact';
 import Splash from './pages/splashScreen';  
+import EditProfile from './Tabs/EditProfile';
 
 /* Core CSS ... (keep all your existing CSS imports exactly as they are) */
 import '@ionic/react/css/core.css';
@@ -34,6 +35,7 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 import '@ionic/react/css/palettes/dark.system.css';
 import './theme/variables.css';
+
 
 setupIonicReact();
 
@@ -64,6 +66,7 @@ const App: React.FC = () => {
           </Route>
 
           <Route exact path="/Splash" component={Splash} />
+          <Route path="/profile/edit" component={EditProfile} exact />
 
           {/* Tabs Routes – only accessible when logged in */}
           <Route path="/tabs">

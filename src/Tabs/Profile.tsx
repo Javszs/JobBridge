@@ -1,4 +1,12 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import React from 'react';
+import {
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+  IonButton,
+} from '@ionic/react';
 import { Logout } from '../components/Logout';
 import './Profile.css';
 
@@ -14,8 +22,25 @@ const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
           <IonTitle>Profile</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent fullscreen>
+
+      <IonContent fullscreen className="ion-padding">
+
+        {/* Styled Update Profile Button */}
+        <div className="update-profile-wrapper">
+          <div className="update-profile-btn-container">
+            <IonButton
+              routerLink="/profile/edit"
+              fill="clear"
+              className="update-profile-btn"
+            >
+              Update Profile
+            </IonButton>
+          </div>
+        </div>
+
+        {/* Logout Button */}
         <Logout onLogout={onLogout} />
+
       </IonContent>
     </IonPage>
   );
