@@ -9,6 +9,7 @@ import {
 
 import { useState } from 'react';
 import Auth from '../components/auth';
+import logo from '../assets/Logo.png';
 
 interface LoginProps {
   onLogin: () => void;
@@ -28,10 +29,10 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           {/* Logo Section */}
           <div className="logo-section">
             <img
-              src="src/assets/Logo.png" 
+              src={logo} 
               alt="Job Bridge Logo"
               className="logo-image"
-              style={{ width: '250px', height: 'auto' }}
+              style={{ width: '230px', height: 'auto' }}
             />
           </div>
 
