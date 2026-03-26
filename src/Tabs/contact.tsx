@@ -13,6 +13,7 @@ import {
 } from '@ionic/react';
 
 import './contact.css';
+import Jayve from '../assets/Jayve.jpg';
 
 const Contacts: React.FC = () => {
   return (
@@ -31,16 +32,24 @@ const Contacts: React.FC = () => {
             <IonCardContent className="ion-text-center">
               <IonAvatar className="contact-profile-avatar">
                 <img
-                  alt="Juan Dela Cruz profile"
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGiNS-LRVWW6PRC_4kZwgFr-BdYUd3PS9GWGldtd8nS-0qPrbklfVV7iEf1R3npGFDg3-A30Y8Nzd_iA-zf8vrv9yl1f9SL2sN1SLgyqoP&s=10"
-                  // Replace with real image when ready
+                  alt="image of developer"
+                  src={Jayve}
                 />
               </IonAvatar>
 
               <IonLabel>
-                <h1 className="contact-profile-name">Juan Dela Cruz</h1>
-                <p className="contact-profile-email">juan.delacruz@gmail.com</p>
-                <p className="contact-profile-role">Student - BSCS 3rd Year</p>
+                <h1 className="contact-profile-name">Jayve Espira</h1>
+                <div>
+                  <p className="contact-profile-email">jayveespira01@gmail.com</p>
+                  <p className="contact-profile-role">Student - BSCS 3rd Year</p>
+                </div>
+                <hr />
+                <div>
+                  <p className="contact-profile-contributions">Contributions:</p>
+                  <p className="contact-profile-contributions">- Main Programmer</p>
+                  <p className="contact-profile-contributions">- Backend, Frontend</p>
+                  <p className="contact-profile-contributions">- Quality Assurance</p>
+                </div>
               </IonLabel>
             </IonCardContent>
           </IonCard>
