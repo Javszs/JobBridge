@@ -24,6 +24,7 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Signup fields
   const [firstName, setFirstName] = useState('');
@@ -71,7 +72,6 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
   if (error) return showError(error.message);
 
   // 3. UI Switch
-  // Instead of redirecting to login, we show the OTP input
   showSuccess('Verification code sent! Check your email.');
   setView('verify'); 
 };
@@ -209,14 +209,20 @@ const handleVerifyOTP = async () => {
           value={password}
           onIonChange={e => setPassword(e.detail.value ?? '')}
         />
+        <IonButton fill="clear" slot="end" onClick={() => setShowPassword(!showPassword)}>
+          <IonIcon icon={showPassword ? eye : eyeOff} />
+        </IonButton>
       </IonItem>
       <IonItem className="auth-input-item">
         <IonInput
-          type={showPassword ? 'text' : 'password'}
+          type={showConfirmPassword ? 'text' : 'password'}
           placeholder="Confirm Password"
           value={confirmPassword}
           onIonChange={e => setConfirmPassword(e.detail.value ?? '')}
         />
+        <IonButton fill="clear" slot="end" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+          <IonIcon icon={showConfirmPassword ? eye : eyeOff} />
+        </IonButton>
       </IonItem>
       <div className="auth-role-selection">
         <IonButton
