@@ -17,17 +17,13 @@ This project was developed for **CS 409 - Mobile Computing** at **Technological 
 
 * 👥 Dual User Roles: Separate flows for **Applicants (Job Seekers)** and **Recruiters (Employers)**.
 
-🛠️ Tech Stack
+🛠️ Tech Stack Used
 
-* Frontend: React Native
+* Frontend: Ionic React Typescript
 
-* Framework: Expo
+* Framework: Ionic
 
-* Navigation: React Navigation (Native Stack)
-
-* State Management: (TBD - e.g. Redux / Context API)
-
-* Backend: (Firebase / Node.js + Express - to be finalized)
+* Backend: (Supabase / Node.js - to be finalized)
 
 🚀 How to Run Locally
 
@@ -35,3 +31,4 @@ This project was developed for **CS 409 - Mobile Computing** at **Technological 
 
    ```bash
    git clone https://github.com/yourusername/JobBridge.git
+   ```
