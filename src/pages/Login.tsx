@@ -36,7 +36,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             />
           </div>
 
-          {/* Auth Component */}
+          {/* Auth Componentss */}
           <Auth onSignUpClick={handleSignUpClick} onLogin={onLogin} />
 
           {/* Sign Up Text */}
