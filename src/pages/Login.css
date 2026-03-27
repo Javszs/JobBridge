@@ -7,7 +7,7 @@
   justify-content: flex-start; /* keep panels below logo */
   height: 100vh;
   width: 100%;
-  padding: 190px 16px 16px; /* space at top for logo */
+  padding: 260px 16px 16px; /* space at top for logo */
   background: linear-gradient(135deg, #2196f3 0%, #1565c0 100%);
   overflow: hidden;
   box-sizing: border-box;
@@ -28,7 +28,7 @@ ion-content {
   flex-shrink: 0;
   margin-bottom: 8px;
   position: absolute;
-  top: -10px;
+  top: 50px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;

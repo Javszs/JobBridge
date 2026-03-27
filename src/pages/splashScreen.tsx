@@ -2,6 +2,7 @@ import { IonPage, IonContent } from '@ionic/react';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import './splashScreen.css';
+import logo from '../assets/Logo.png';
 
 const Splash: React.FC = () => {
   const history = useHistory();
@@ -25,9 +26,7 @@ const Splash: React.FC = () => {
       <IonContent fullscreen>
         
         <div className={`logo-screen splash-screen ${fadeOut ? 'fade-out' : ''}`}>
-          <img src="src/assets/Logo.png" alt="Logo" style={{ width: '300px', height: 'auto' }} />
-          
-      
+          <img src={logo} alt="Logo" style={{ width: '300px', height: 'auto' }} />
           <h1>Welcome to Job Bridge</h1>
           <p>Loading opportunities things...</p>
         </div>

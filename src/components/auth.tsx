@@ -128,7 +128,7 @@ const handleVerifyOTP = async () => {
         <h2 className="auth-panel-title">Welcome Back!</h2>
         <p>Sign in as a {role === 'seeker' ? 'Job Seeker' : 'Recruiter'}</p>
       </div>
-      <IonItem className="auth-input-item">
+      <IonItem className="auth-input-item" lines="none">
         <IonIcon icon={mailOutline} slot="start" />
         <IonInput
           type="email"
@@ -137,7 +137,7 @@ const handleVerifyOTP = async () => {
           onIonChange={e => setEmail(e.detail.value ?? '')}
         />
       </IonItem>
-      <IonItem className="auth-input-item">
+      <IonItem className="auth-input-item" lines="none">
         <IonIcon icon={lockClosedOutline} slot="start" />
         <IonInput
           type={showPassword ? 'text' : 'password'}
@@ -180,21 +180,21 @@ const handleVerifyOTP = async () => {
       <div className="auth-panel-header">
         <h2 className="auth-panel-title">Let's get started!</h2>
       </div>
-      <IonItem className="auth-input-item">
+      <IonItem className="auth-input-item" lines="none">
         <IonInput
           placeholder="First Name"
           value={firstName}
           onIonChange={e => setFirstName(e.detail.value ?? '')}
         />
       </IonItem>
-      <IonItem className="auth-input-item">
+      <IonItem className="auth-input-item" lines="none">
         <IonInput
           placeholder="Last Name"
           value={lastName}
           onIonChange={e => setLastName(e.detail.value ?? '')}
         />
       </IonItem>
-      <IonItem className="auth-input-item">
+      <IonItem className="auth-input-item" lines="none">
         <IonInput
           type="email"
           placeholder="Email"
@@ -202,7 +202,7 @@ const handleVerifyOTP = async () => {
           onIonChange={e => setEmail(e.detail.value ?? '')}
         />
       </IonItem>
-      <IonItem className="auth-input-item">
+      <IonItem className="auth-input-item" lines="none">
         <IonInput
           type={showPassword ? 'text' : 'password'}
           placeholder="Password"
@@ -213,7 +213,7 @@ const handleVerifyOTP = async () => {
           <IonIcon icon={showPassword ? eye : eyeOff} />
         </IonButton>
       </IonItem>
-      <IonItem className="auth-input-item">
+      <IonItem className="auth-input-item" lines="none">
         <IonInput
           type={showConfirmPassword ? 'text' : 'password'}
           placeholder="Confirm Password"
@@ -224,7 +224,7 @@ const handleVerifyOTP = async () => {
           <IonIcon icon={showConfirmPassword ? eye : eyeOff} />
         </IonButton>
       </IonItem>
-      <div className="auth-role-selection">
+      <div className="auth-role-selection" >
         <IonButton
           fill={selectedRole === 'seeker' ? 'solid' : 'outline'}
           onClick={() => setSelectedRole('seeker')}
@@ -255,7 +255,7 @@ const handleVerifyOTP = async () => {
         <h2 className="auth-panel-title">Verify Your Email</h2>
         <p>Enter the 6-digit code sent to <strong>{email}</strong></p>
       </div>
-      <IonItem className="auth-input-item">
+      <IonItem className="auth-input-item" lines="none">
         <IonInput
           type="text"
           inputmode="numeric"

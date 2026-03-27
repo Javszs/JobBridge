@@ -32,7 +32,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               src={logo} 
               alt="Job Bridge Logo"
               className="logo-image"
-              style={{ width: '230px', height: 'auto' }}
+              style={{ width: '250px', height: 'auto' }}
             />
           </div>
 

@@ -119,7 +119,7 @@ const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
               {profileData.profile_photo ? (
                 <img alt="Profile" src={profileData.profile_photo} />
               ) : (
-                <IonIcon icon={personCircle} size="large" />
+                <IonIcon icon={personCircle} className='placeholder-icon' />
               )}
             </IonAvatar>
           </div>

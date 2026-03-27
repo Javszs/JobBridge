@@ -111,17 +111,15 @@ const EditProfile: React.FC = () => {
           );
           const data = await response.json();
 
-          const town = data.address?.town || data.address?.village || data.address?.municipality;
+          const subdistrict = data.address?.subdistrict || data.address?.neighbourhood || data.address?.suburb;
           const city = data.address?.city || data.address?.city_district;
           const country = data.address?.country;
 
-          const locationParts = [town, city, country].filter(Boolean);
-          const displayLocation = locationParts.length > 0 
-            ? locationParts.join(', ') 
-            : 'Unknown Location';
+          const locationString = [subdistrict, city, country].filter(Boolean) .join(', ');
+          const finalLocation = locationString || 'Unknown Location';
 
-          setFormData(prev => ({ ...prev, city: displayLocation }));
-          setToast({ message: `Location set to: ${displayLocation}`, color: 'success' });
+          setFormData(prev => ({ ...prev, city: finalLocation }));
+          setToast({ message: `Location set to: ${finalLocation}`, color: 'success' });
         } catch (err) {
           setToast({ message: 'Failed to get city name from location', color: 'danger' });
         } finally {

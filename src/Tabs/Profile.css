@@ -30,6 +30,13 @@ ion-content {
   border-radius: 50%;
 }
 
+.placeholder-icon {
+  width: 100%;
+  height: 100%;
+  color: #a0a0a0;
+  font-size: var(--size); 
+}
+
 .profile-name {
   font-size: 1.55rem;
   font-weight: 700;
@@ -71,11 +78,13 @@ ion-content {
 /* Menu styling */
 .profile-menu {
   width: 90%;
-  margin: 0 auto;
+  margin: 0 auto !important;
+  align-items: center;
   border-radius: 16px;
   overflow: hidden;
   background: hsl(205, 38%, 77%) !important;
   box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  display: block;
 }
 
 .profile-menu ion-item {
@@ -84,6 +93,8 @@ ion-content {
   overflow: hidden;
   --background: hsl(205, 38%, 77%) !important;
   --color: #333333 !important;
+  --inner-padding-end: 16px;
+  --padding-start: 16px !important;
 }
 
 .profile-menu ion-item ion-icon {
