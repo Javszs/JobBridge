@@ -4,8 +4,7 @@
    Background & Layout
 ───────────────────────────────────────────────── */
 .contact-gradient-bg {
-  --background: linear-gradient(180deg, #0BACE1 0%, #065E7B 100%) !important;
-  /* Alternative diagonal version: linear-gradient(135deg, #0BACE1 0%, #065E7B 100%) */
+  --background: #3168B9 !important;
 }
 
 .contact-center-wrapper {
@@ -25,7 +24,7 @@
   width: 100%;
   max-width: 400px;           /* slightly wider than before for better readability */
   border-radius: 24px;
-  background: #9fd0ef;
+  background: hsl(205, 38%, 77%) !important;
   overflow: hidden;
   box-shadow: 
     0 10px 25px rgba(6, 94, 123, 0.28),
@@ -86,7 +85,7 @@
 }
 
 .devs-header {
-  --background: #0BACE1 !important;
+  --background: #3168B9 !important;
   color: white !important;
 }
 

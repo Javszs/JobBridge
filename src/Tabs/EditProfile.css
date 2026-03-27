@@ -72,3 +72,53 @@
   text-transform: uppercase;
   letter-spacing: 0.8px;
 }
+
+.avatar-upload-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  gap: 16px; /* Spacing between avatar and button */
+  border-radius: 12px;
+}
+
+.avatar-preview {
+  width: 120px;  /* Larger size for profile editing */
+  height: 120px;
+  border: 3px solid var(--ion-color-primary, #3880ff);
+  padding: 4px;
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.avatar-preview:hover {
+  transform: scale(1.05);
+}
+
+.avatar-preview img {
+  border-radius: 50%;
+  object-fit: cover; /* Prevents image stretching */
+}
+
+/* Styling the IonIcon when no image is present */
+.avatar-preview ion-icon {
+  font-size: 80px;
+  color: #ccc;
+}
+
+/* Make the button look more professional */
+ion-button {
+  --border-radius: 8px;
+  font-weight: 600;
+  text-transform: none; /* Removes all-caps if default */
+}
+
+.placeholder-icon {
+  width: 100%;
+  height: 100%;
+  color: #a0a0a0; /* Subtle grey color */
+  /* If the icon still looks small, increase its font-size */
+  font-size: var(--size); 
+}

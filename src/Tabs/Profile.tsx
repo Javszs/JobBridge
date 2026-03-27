@@ -1,13 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   IonContent,
   IonHeader,
   IonPage,
   IonTitle,
   IonToolbar,
-  IonButton,
+  IonItem,
+  IonIcon,
+  IonLabel,
+  IonList,
+  IonAvatar,
+  IonSpinner,
+  IonRefresher,
+  IonRefresherContent,
+  RefresherEventDetail,
 } from '@ionic/react';
-import { Logout } from '../components/Logout';
+import { supabase } from '../supabaseClient';
+import { personCircle, person, help, create, logOut } from 'ionicons/icons';
 import './Profile.css';
 
 interface ProfileProps {
@@ -15,55 +24,145 @@ interface ProfileProps {
 }
 
 const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
+  const [loading, setLoading] = useState(true);
+  const [profileData, setProfileData] = useState({
+    fullname: '',
+    email: '',
+    city: '',
+    role: '',
+    profile_photo: '',
+  });
+
+  // Fetch profile data when component mounts
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const handleRefresh = async (event: CustomEvent<RefresherEventDetail>) => {
+    await fetchProfile();
+    event.detail.complete();
+  };
+
+  const fetchProfile = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('users')
+        .select('firstname, lastname, city, role, profile_photo')
+        .eq('id', user.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching profile:', error);
+      }
+
+      if (data) {
+        let profilePhotoUrl = '';
+        if (data.profile_photo) {
+          const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(data.profile_photo);
+          profilePhotoUrl = urlData.publicUrl;
+        }
+        setProfileData({
+          fullname: `${data.firstname || ''} ${data.lastname || ''}`.trim(),
+          email: user.email || '',
+          city: data.city || '',
+          role: data.role || '',
+          profile_photo: profilePhotoUrl,
+        });
+      }
+    } catch (err) {
+      console.error('Failed to load profile:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <IonPage>
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>My Profile</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent fullscreen className="ion-padding" style={{ '--background': '#3168B9' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '100px' }}>
+            <IonSpinner />
+          </div>
+        </IonContent>
+      </IonPage>
+    );
+  }
+
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
-          <IonTitle>Profile</IonTitle>
+        <IonToolbar  color="primary">
+          <IonTitle style={{ textAlign: 'center' }}>My Profile</IonTitle>
         </IonToolbar>
       </IonHeader>
 
-      <IonContent fullscreen className="ion-padding">
+      <IonContent fullscreen className="ion-padding" style={{ '--background': '#3168B9' }}>
+        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+          <IonRefresherContent></IonRefresherContent>
+        </IonRefresher>
 
-        {/* Styled Update Profile Button */}
-        <div className="update-profile-wrapper">
-          <div className="update-profile-btn-container">
-            <IonButton
-              routerLink="/profile/edit"
-              fill="clear"
-              className="update-profile-btn"
-            >
-              Update Profile
-            </IonButton>
+        {/* Profile Card */}
+        <div className="profile-card">
+          <div className="avatar-container">
+            <IonAvatar className="profile-avatar">
+              {profileData.profile_photo ? (
+                <img alt="Profile" src={profileData.profile_photo} />
+              ) : (
+                <IonIcon icon={personCircle} size="large" />
+              )}
+            </IonAvatar>
           </div>
+
+          <h1 className="profile-name">{profileData.fullname || 'No Name'}</h1>
+  
+          <p className="profile-email">{profileData.email}</p>
+  
+          {profileData.city && (
+            <p className="profile-location">
+              📍 {profileData.city}
+            </p>
+          )}
+
+          {profileData.role && (
+            <p className="profile-role">
+              Role: <span className="role-badge">{profileData.role === 'seeker' ? 'Job Seeker' : 'Recruiter'}</span>
+            </p>
+          )}
         </div>
 
-        <div className="profile-about-wrapper">
-          <div className="profile-about-btn-container">
-            <IonButton
-              routerLink="/profile/about"
-              fill="clear"
-              className="profile-about-btn"
-            >
-              About The App
-            </IonButton>
-          </div>
-        </div>
+        {/* Action Menu */}
+        <IonList className="profile-menu">
+          <IonItem routerLink="/profile/edit" lines="full">
+            <IonIcon icon={create} slot="start" />
+            <IonLabel>Edit Profile</IonLabel>
+          </IonItem>
 
-        <div className="developers-profile-wrapper">
-          <div className="developers-profile-btn-container">
-            <IonButton
-              routerLink="/profile/developers"
-              fill="clear"
-              className="developers-profile-btn"
-            >
-              Developers
-            </IonButton>
-          </div>
-        </div>
+          <IonItem routerLink="/profile/about" lines="full">
+            <IonIcon icon={help} slot="start" />
+            <IonLabel>About the App</IonLabel>
+          </IonItem>
 
-        {/* Logout Button */}
-        <Logout onLogout={onLogout} />
+          <IonItem routerLink="/profile/developers" lines="full">
+            <IonIcon icon={person} slot="start" />
+            <IonLabel>About the Developers</IonLabel>
+          </IonItem>
+
+          <IonItem button onClick={onLogout} lines="none" className="logout-item">
+            <IonIcon icon={logOut} slot="start" color="danger" />
+            <IonLabel className="logout-text">Logout</IonLabel>
+          </IonItem>
+        </IonList>
 
       </IonContent>
     </IonPage>

@@ -20,8 +20,11 @@ import {
   IonToast,
   IonButtons,
   IonBackButton,
+  IonAvatar,
+  IonIcon,
 } from '@ionic/react';
 import { supabase } from '../supabaseClient';
+import { personCircle } from 'ionicons/icons';
 import './EditProfile.css';
 
 const EditProfile: React.FC = () => {
@@ -32,43 +35,86 @@ const EditProfile: React.FC = () => {
     firstname: '',
     lastname: '',
     phone: '',
-    gender: undefined as string | undefined,
+    gender: '',
     city: '',
+    role: '',
   });
+
+  const [profilePhotoFile, setProfilePhotoFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>(''); // For live preview
+  const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string>(''); // Current saved photo
 
   useEffect(() => {
     fetchProfile();
+
+    return () => {
+      // Clean up object URL on unmount
+      if (previewUrl && previewUrl.startsWith('blob:') && previewUrl !== currentPhotoUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
   }, []);
 
   const fetchProfile = async () => {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-  const { data, error } = await supabase
-    .from('users')
-    .select('firstname, lastname, phone, gender, city')
-    .eq('id', user.id)
-    .single();
+    const { data } = await supabase
+      .from('users')
+      .select('firstname, lastname, phone, gender, city, role, profile_photo')
+      .eq('id', user.id)
+      .single();
 
-  if (error) {
-    console.error('Error fetching profile:', error);
-    // Don't show error toast here - it's normal if user has no profile row yet
-    return;
-  }
+    if (data) {
+      setFormData({
+        firstname: data.firstname || '',
+        lastname: data.lastname || '',
+        phone: data.phone || '',
+        gender: data.gender || '',
+        city: data.city || '',
+        role: data.role || '',
+      });
 
-  if (data) {
-    setFormData({
-      firstname: data.firstname || '',
-      lastname: data.lastname || '',
-      phone: data.phone || '',
-      gender: data.gender ? data.gender : undefined,
-      city: data.city || '',
-    });
-  }
-};
+      if (data.profile_photo) {
+        const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(data.profile_photo);
+        setCurrentPhotoUrl(urlData.publicUrl);
+        setPreviewUrl(urlData.publicUrl);
+      } else {
+        setCurrentPhotoUrl('');
+        setPreviewUrl('');
+      }
+    }
+  };
 
-  const handleChange = (field: keyof typeof formData, value: string | null | undefined) => {
+  const handleChange = (field: keyof typeof formData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Handle image selection and show preview
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setToast({ message: 'Please select an image file', color: 'danger' });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setToast({ message: 'Image must be less than 5MB', color: 'danger' });
+      return;
+    }
+
+    // Revoke previous object URL if it exists and is not the current photo
+    if (previewUrl && previewUrl !== currentPhotoUrl && previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    setProfilePhotoFile(file);
+
+    // Create new preview
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
   };
 
   const handleSave = async () => {
@@ -81,28 +127,67 @@ const EditProfile: React.FC = () => {
       return;
     }
 
+    let photoPath = null;
+
+    // Upload profile photo if selected
+    if (profilePhotoFile) {
+      const fileExt = profilePhotoFile.name.split('.').pop();
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, profilePhotoFile, {
+          cacheControl: '3600',
+          upsert: true,
+        });
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+
+      photoPath = fileName;
+    }   
+
+    // Use upsert with explicit id
+    const updateData: any = {
+      id: user.id,
+      firstname: formData.firstname.trim() || null,
+      lastname: formData.lastname.trim() || null,
+      phone: formData.phone.trim() || null,
+      gender: formData.gender || null,
+      city: formData.city.trim() || null,
+      role: formData.role || null,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (photoPath) {
+      updateData.profile_photo = photoPath;
+    }
+
     const { error } = await supabase
       .from('users')
-      .update({
-        firstname: formData.firstname.trim() || null,
-        lastname: formData.lastname.trim() || null,
-        phone: formData.phone.trim() || null,
-        gender: formData.gender || null,
-        city: formData.city.trim() || null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', user.id);
+      .upsert(updateData, { 
+        onConflict: 'id' 
+      });
 
     if (error) {
-      console.error("Save failed:", error);
-      setToast({ message: error.message || "Failed to save profile", color: 'danger' });
+      console.error('Save error:', error);
+      setToast({ message: error.message || 'Failed to save profile', color: 'danger' });
     } else {
-      setToast({ message: "Profile saved successfully!", color: 'success' });
-      setTimeout(() => window.history.back(), 1500);
+      // Update current photo URL if new photo was uploaded
+      if (photoPath) {
+        const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(photoPath);
+        setCurrentPhotoUrl(urlData.publicUrl);
+        setPreviewUrl(urlData.publicUrl);
+        setProfilePhotoFile(null);
+      }
+      setToast({ message: 'Profile saved successfully!', color: 'success' });
+      setTimeout(() => window.history.back(), 1400);
     }
-  } catch (err) {
-    console.error(err);
-    setToast({ message: "Something went wrong", color: 'danger' });
+  } catch (err: any) {
+    console.error('Error:', err);
+    setToast({ message: err.message || 'Something went wrong', color: 'danger' });
   } finally {
     setLoading(false);
   }
@@ -126,9 +211,35 @@ const EditProfile: React.FC = () => {
               <IonCardTitle>Personal Information</IonCardTitle>
             </IonCardHeader>
 
-            <IonCardContent className="form-container">
-              <IonList className="form-list">
+            <IonCardContent>
+              {/* Image Preview + Upload */}
+              <div className="avatar-upload-section">
+                <IonAvatar className="avatar-preview">
+                  {previewUrl ? (
+                    <img src={previewUrl} alt="Profile Preview" />
+                  ) : (
+                    <IonIcon icon={personCircle} className="placeholder-icon" />
+                  )}
+                </IonAvatar>
 
+                <IonButton 
+                  fill="outline" 
+                  onClick={() => document.getElementById('file-upload')?.click()}
+                >
+                  Choose New Photo
+                </IonButton>
+
+                <input
+                  id="file-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  style={{ display: 'none' }}
+                />
+              </div>
+
+              {/* Form Fields */}
+              <IonList className="form-list">
                 <IonItem className="custom-item">
                   <IonLabel position="stacked" className="input-label">First Name</IonLabel>
                   <IonInput
@@ -169,7 +280,8 @@ const EditProfile: React.FC = () => {
                   >
                     <IonSelectOption value="male">Male</IonSelectOption>
                     <IonSelectOption value="female">Female</IonSelectOption>
-                    <IonSelectOption value={null}>Prefer not to say</IonSelectOption>
+                    <IonSelectOption value="other">Other</IonSelectOption>
+                    <IonSelectOption value="">Prefer not to say</IonSelectOption>
                   </IonSelect>
                 </IonItem>
 
@@ -178,7 +290,7 @@ const EditProfile: React.FC = () => {
                   <IonInput
                     value={formData.city}
                     onIonChange={e => handleChange('city', e.detail.value!)}
-                    placeholder="e.g. Quezon City"
+                    placeholder="e.g. Quezon City, Philippines"
                     clearInput
                   />
                 </IonItem>
@@ -201,7 +313,7 @@ const EditProfile: React.FC = () => {
           isOpen={!!toast}
           message={toast?.message}
           color={toast?.color}
-          duration={2500}
+          duration={3000}
           onDidDismiss={() => setToast(null)}
         />
       </IonContent>
