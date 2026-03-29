@@ -1,0 +1,133 @@
+.recruiter-home-header {
+  background-color: #ffffff !important;
+}
+
+.recruiter-home-content {
+  --background: #f8fafc !important;
+}
+
+.recruiter-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+}
+
+.recruiter-greeting {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e2937;
+  margin: 0;
+}
+
+.recruiter-sub-greeting {
+  font-size: 1rem;
+  color: #64748b;
+  margin: 4px 0 0 0;
+}
+
+.recruiter-notification-btn {
+  --color: #1e2937;
+}
+
+.recruiter-section-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 16px 12px;
+  font-weight: bolder;
+  color: #1e2937;
+}
+
+.recruiter-see-all {
+  color: #2563eb;
+  font-size: 0.95rem;
+}
+
+.recruiter-job-list {
+  padding: 0 16px;
+}
+
+.recruiter-job-card {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-wrap: wrap; 
+  gap: 14px;
+}
+
+.recruiter-company-logo .recruiter-logo-circle {
+  width: 48px;
+  height: 48px;
+  background: #3b82f6;
+  color: white;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.3rem;
+}
+
+.recruiter-job-info {
+  flex: 1;
+  color: #2e2e2e;
+  font-weight: bold;
+}
+
+.recruiter-job-info2 {
+  color: #2e2e2e;
+  font-weight: bold;
+  margin: 0 auto;
+}
+
+.recruiter-job-info h3 {
+  margin: 0 0 0 0;
+  font-size: 1.25rem;
+}
+
+.recruiter-company-name {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.recruiter-job-meta {
+  display: flex;
+  gap: 8px;
+  font-size: 0.95rem;
+  color: #64748b;
+  margin-bottom: 10px;
+}
+
+.recruiter-job-tags {
+  display: flex;
+  justify-content: flex-end !important;
+  gap: 8px;
+  align-items: center !important;
+}
+
+.recruiter-tag {
+  background: #f1f5f9;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  color: #453636;
+}
+
+.recruiter-quick-apply {
+  --background: #2563eb;
+  --color: white;
+  --border-radius: 20px;
+  font-size: 0.85rem;
+  padding: 0 14px;
+  height: 28px;
+}
+
+.recruiter-save-icon {
+  color: #94a3b8;
+  font-size: 1.4rem;
+}
+
