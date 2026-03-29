@@ -21,6 +21,7 @@ import About from './Tabs/About';
 import Contacts from './Tabs/contact';
 import Splash from './pages/splashScreen';  
 import EditProfile from './Tabs/EditProfile';
+import PostJob from './pages/PostJob';
 
 /* Core CSS ... (keep all your existing CSS imports exactly as they are) */
 import '@ionic/react/css/core.css';
@@ -69,6 +70,7 @@ const App: React.FC = () => {
           <Route path="/profile/edit" component={EditProfile} exact />
           <Route path="/profile/about" component={About} exact />
           <Route path="/profile/developers" component={Contacts} exact />
+          <Route path="/recruiter/post-job" component={PostJob} exact />
 
           {/* Tabs Routes – only accessible when logged in */}
           <Route path="/tabs">

@@ -1,0 +1,18 @@
+.post-job-container {
+  padding: 16px;
+}
+
+.post-job-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.post-job-btn {
+  --background: #3b82f6;
+  --color: white;
+  height: 52px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  margin-top: 24px;
+}
