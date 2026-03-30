@@ -167,7 +167,28 @@
 }
 
 .seeker-save-icon {
-  color: #94a3b8;
+  color: #ff0000;
   font-size: 1.4rem;
 }
 
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  gap: 16px;
+  color: #393c41;
+}
+
+.go-to-jobs-btn {
+  --background: #2563eb;
+  --color: white !important;
+  --border-radius: 20px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  margin: 10px 20px;
+  height: 45px;
+  width: 200px;
+}

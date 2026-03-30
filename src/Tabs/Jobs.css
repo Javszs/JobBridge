@@ -119,6 +119,12 @@
   font-weight: bold;
 }
 
+.job-info2 {
+  color: #2e2e2e;
+  font-weight: bold;
+  margin: 0 auto;
+}
+
 .job-info h3 {
   margin: 0 0 0 0;
   font-size: 1.25rem;

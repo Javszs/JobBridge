@@ -236,7 +236,7 @@ const Jobs: React.FC = () => {
                       <div className="job-info2">
                         <div className="job-meta">
                           <span>📍 {job.location || 'Not specified'}</span>
-                          <span>💲 {job.salary || 'Not specified'}</span>
+                          <span>💲₱ {job.salary + ' / day' || 'Not specified'}</span>
                           <span>🕒 {new Date(job.created_at).toLocaleDateString()}</span>
                         </div>
                         <div className="job-tags">
