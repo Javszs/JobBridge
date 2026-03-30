@@ -1,0 +1,239 @@
+/* Job.css - Full styling for Job Details page */
+
+.specific-job-content {
+  --background: #f8fafc;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ==================== JOB CARD ==================== */
+.specific-job-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  margin: 20px;
+}
+
+.specific-job-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.specific-job-logo {
+  flex-shrink: 0;
+}
+
+.specific-job-logo-circle {
+  width: 58px;
+  height: 58px;
+  background: linear-gradient(135deg, #3168b9, #3b82f6);
+  color: white;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(49, 104, 185, 0.3);
+}
+
+.specific-job-title-section {
+  flex: 1;
+  padding-top: 4px;
+}
+
+.specific-job-position {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #1e2937;
+  line-height: 1.2;
+}
+
+.specific-job-company {
+  margin: 4px 0 0;
+  font-size: 1.05rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.specific-job-save-icon {
+  font-size: 1.8rem;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.specific-job-save-icon:hover {
+  color: #ef4444;
+}
+
+/* Meta */
+.specific-job-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 20px;
+  margin-bottom: 18px;
+}
+
+.specific-job-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+.specific-job-meta-item span:first-child {
+  font-size: 1.1rem;
+}
+
+/* Tags */
+.specific-job-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.specific-job-tag {
+  background: #f1f5f9;
+  color: #334155;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.specific-job-tag.status {
+  background: #10b981;
+  color: white;
+}
+
+/* ==================== MAP SECTION ==================== */
+.specific-job-map-section {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  margin: 20px;
+}
+
+.specific-job-map-title {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+  color: #1e2937;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.specific-job-full-location {
+  color: #006aff;
+  line-height: 1.4;
+}
+
+.specific-job-map {
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.specific-job-google-map-btn {
+  margin-top: 20px;
+  --background: #3168b9;
+  --color: white !important;
+  font-weight: 600;
+  width: 70%;
+  margin: 0 auto !important;
+}
+
+/* ==================== DESCRIPTION ==================== */
+.specific-job-description-section {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  margin: 20px;
+}
+
+.specific-job-description-title {
+  margin: 0 0 12px;
+  font-size: 1.1rem;
+  color: #1e2937;
+  font-weight: 600;
+}
+
+.specific-job-description {
+  color: #334155;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+/* ==================== RECRUITER ==================== */
+.specific-job-recruiter {
+  background: white;
+  border-radius: 16px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  margin: 20px;
+}
+
+.specific-job-recruiter-label {
+  margin: 0 0 4px;
+  font-size: 0.85rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.specific-job-recruiter-name {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e2937;
+}
+
+/* ==================== ACTION BUTTONS ==================== */
+.specific-job-action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+  padding-bottom: 30px;
+  margin: 20px;
+}
+
+.specific-job-apply-btn {
+  --background: #3168b9;
+  --color: white;
+  height: 56px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.specific-job-message-btn {
+  --color: #3168b9;
+  --border-color: #073579;
+  --background: #fff;
+  height: 56px;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+/* ==================== RESPONSIVE TWEAKS ==================== */
+@media (max-width: 576px) {
+  .specific-job-content {
+    padding: 12px;
+  }
+  
+  .specific-job-card,
+  .specific-job-map-section,
+  .specific-job-description-section,
+  .specific-job-recruiter {
+    border-radius: 14px;
+  }
+}

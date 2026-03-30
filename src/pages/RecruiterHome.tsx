@@ -281,6 +281,12 @@ const RecruiterHome: React.FC = () => {
                                 <span>🕒 {new Date(job.created_at).toLocaleDateString()}</span>
                               </div>
                               <div className="seeker-job-tags">
+                                <IonButton 
+                                  fill="clear" 
+                                  className="seeker-quick-apply"
+                                  onClick={() => history.push(`/job/${job.job_id}`)} >
+                                  View
+                                </IonButton>
                                 <span className="seeker-tag">{job.typeJobTime}</span>
                                 <IonButton fill="clear" className="seeker-quick-apply">
                                   Quick Apply
