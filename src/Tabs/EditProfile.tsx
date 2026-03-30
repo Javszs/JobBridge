@@ -307,7 +307,7 @@ const EditProfile: React.FC = () => {
                   <IonLabel position="stacked" className="input-label">First Name</IonLabel>
                   <IonInput
                     value={formData.firstname}
-                    onIonChange={e => handleChange('firstname', e.detail.value!)}
+                    onIonInput={e => handleChange('firstname', e.detail.value!)}
                     placeholder="Enter first name"
                     clearInput
                   />
@@ -317,7 +317,7 @@ const EditProfile: React.FC = () => {
                   <IonLabel position="stacked" className="input-label">Last Name</IonLabel>
                   <IonInput
                     value={formData.lastname}
-                    onIonChange={e => handleChange('lastname', e.detail.value!)}
+                    onIonInput={e => handleChange('lastname', e.detail.value!)}
                     placeholder="Enter last name"
                     clearInput
                   />
@@ -328,7 +328,7 @@ const EditProfile: React.FC = () => {
                   <IonInput
                     type="tel"
                     value={formData.phone}
-                    onIonChange={e => handleChange('phone', e.detail.value!)}
+                    onIonInput={e => handleChange('phone', e.detail.value!)}
                     placeholder="09123456789"
                     clearInput
                   />
@@ -353,7 +353,7 @@ const EditProfile: React.FC = () => {
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }} className="location-item">
                     <IonInput
                       value={formData.city}
-                      onIonChange={e => handleChange('city', e.detail.value!)}
+                      onIonInput={e => handleChange('city', e.detail.value!)}
                       placeholder="e.g. Quezon City, Philippines"
                       clearInput
                       style={{ flex: 1 }}

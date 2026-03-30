@@ -13,6 +13,7 @@ import {
   IonRefresher,
   IonRefresherContent,
   RefresherEventDetail,
+  useIonViewWillEnter
 } from '@ionic/react';
 import { 
   filterOutline, 
@@ -32,6 +33,10 @@ const Jobs: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<'all' | 'Full-time' | 'Part-time' | 'nearby'>('all');
   const [userCity, setUserCity] = useState<string>('');
   const [loading, setLoading] = useState(true);
+
+  useIonViewWillEnter(() => {
+    fetchUserCityAndJobs();   // ← Your refresh function
+  });
 
   useEffect(() => {
     fetchUserCityAndJobs();

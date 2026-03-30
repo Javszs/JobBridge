@@ -14,6 +14,7 @@ import {
   IonRefresher,
   IonRefresherContent,
   RefresherEventDetail,
+  useIonViewWillEnter
 } from '@ionic/react';
 import { 
   notificationsOutline, 
@@ -35,6 +36,10 @@ const SeekerHome: React.FC = () => {
   const [userCity, setUserCity] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState("User");
+
+  useIonViewWillEnter(() => {
+    fetchUserDataAndSavedJobs();  
+  });
 
   useEffect(() => {
     fetchUserDataAndSavedJobs();

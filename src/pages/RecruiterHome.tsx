@@ -13,8 +13,11 @@ import {
   IonRefresher,
   IonRefresherContent,
   RefresherEventDetail,
+  useIonViewWillEnter,
+  IonSearchbar,
+  IonChip
 } from '@ionic/react';
-import { addOutline, notificationsOutline, heartOutline } from 'ionicons/icons';
+import { addOutline, notificationsOutline, heartOutline, heart } from 'ionicons/icons';
 import { supabase } from '../supabaseClient';
 import './RecruiterHome.css';
 
@@ -24,9 +27,26 @@ const RecruiterHome: React.FC = () => {
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<{ message: string; color: 'success' | 'danger' } | null>(null);
+  const [savedJobs, setSavedJobs] = useState<any[]>([]);
+  const [activeFilter, setActiveFilter] = useState<'all' | 'Full-time' | 'Part-time' | 'nearby'>('all');
+  const [filteredSavedJobs, setFilteredSavedJobs] = useState<any[]>([]);
+  const [userCity, setUserCity] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  useIonViewWillEnter(() => {
+      fetchUserDataAndSavedJobs();
+    });
+  
+  useIonViewWillEnter(() => {
+      fetchUserAndJobs();
+  });
 
   useEffect(() => {
     fetchUserAndJobs();
+  }, []);
+
+  useEffect(() => {
+    fetchUserDataAndSavedJobs();
   }, []);
 
   const fetchUserAndJobs = async () => {
@@ -64,6 +84,41 @@ const RecruiterHome: React.FC = () => {
     }
   };
 
+  const fetchUserDataAndSavedJobs = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+  
+      // Get user info
+      const { data: userData } = await supabase
+        .from('users')
+        .select('firstname, city')
+        .eq('id', user.id)
+        .single();
+  
+      if (userData) {
+        setUserName(userData.firstname || "User");
+        setUserCity(userData.city || '');
+      }
+  
+      // Get saved jobs with full job details
+      const { data } = await supabase
+        .from('saved_jobs')
+        .select(`
+          job_id,
+          jobs!inner (
+            job_id, position, company, salary, location, 
+            typeJobTime, created_at, status, quantity
+          )
+        `)
+        .eq('user_id', user.id)
+        .order('saved_at', { ascending: false });
+  
+      const formattedJobs = data?.map(item => item.jobs) || [];
+      setSavedJobs(formattedJobs);
+      setFilteredSavedJobs(formattedJobs);
+      setLoading(false);
+    };
+
   const handleRefresh = async (event: CustomEvent<RefresherEventDetail>) => {
     await fetchUserAndJobs();
     event.detail.complete();
@@ -73,7 +128,21 @@ const RecruiterHome: React.FC = () => {
   history.push('/recruiter/post-job');  
   };
 
+  const toggleSave = async (jobId: string) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
   
+      const { error } = await supabase
+        .from('saved_jobs')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('job_id', jobId);
+  
+      if (!error) {
+        // Refresh saved jobs
+        fetchUserDataAndSavedJobs();
+      }
+    };
 
   return (
     <IonPage>
@@ -149,7 +218,9 @@ const RecruiterHome: React.FC = () => {
                     <span>🕒 {new Date(job.created_at).toLocaleDateString()}</span>
                   </div>
                   <div className="recruiter-job-tags">
-                    <span className="recruiter-tag">{job.status || 'Active'}</span>
+                    <span className={`recruiter-tag ${job.status === 'active' ? 'success' : 'danger'}`}>
+                      {job.status || 'Closed'}
+                    </span>
                     <span className="recruiter-tag">Qty: {job.quantity || 1}</span>
                   </div>
                 </div>
@@ -157,6 +228,69 @@ const RecruiterHome: React.FC = () => {
             ))}
           </div>
         )}
+
+        {loading ? (
+                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '100px' }}>
+                    <IonSpinner />
+                  </div>
+                ) : (
+                  <>
+                    {/* Saved Jobs List */}
+                    <div className="seeker-section-header">
+                      <h2>Saved Jobs</h2>
+                    </div>
+        
+                    <div className="seeker-job-list">
+                      {filteredSavedJobs.length === 0 ? (
+                        <div className="empty-state">
+                          <p>No Saved Opportunity</p>
+                          <IonButton 
+                            onClick={() => history.push('/tabs/jobs')} 
+                            className="go-to-jobs-btn"
+                          >
+                            Browse Jobs
+                          </IonButton>
+                        </div>
+                      ) : (
+                        filteredSavedJobs.map((job) => (
+                          <div key={job.job_id} className="seeker-job-card">
+                            <div className="seeker-company-logo">
+                              <div className="seeker-logo-circle">
+                                {job.company?.charAt(0) || 'J'}
+                              </div>
+                            </div>
+        
+                            <div className="seeker-job-info">
+                              <h3>{job.position}</h3>
+                              <p className="seeker-company-name">{job.company}</p>
+                            </div>
+        
+                            {/* Clickable Heart - Unsave */}
+                            <IonIcon 
+                              icon={heart} 
+                              className="seeker-save-icon saved"
+                              onClick={() => toggleSave(job.job_id)}
+                            />
+        
+                            <div className="seeker-job-info2">
+                              <div className="seeker-job-meta">
+                                <span>📍 {job.location || 'Not specified'}</span>
+                                <span>💲₱ {job.salary + ' / day' || 'Not specified'}</span>
+                                <span>🕒 {new Date(job.created_at).toLocaleDateString()}</span>
+                              </div>
+                              <div className="seeker-job-tags">
+                                <span className="seeker-tag">{job.typeJobTime}</span>
+                                <IonButton fill="clear" className="seeker-quick-apply">
+                                  Quick Apply
+                                </IonButton>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </>
+                )}
       </IonContent>
 
       <IonToast

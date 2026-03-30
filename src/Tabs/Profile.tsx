@@ -14,6 +14,7 @@ import {
   IonRefresher,
   IonRefresherContent,
   RefresherEventDetail,
+  useIonViewWillEnter
 } from '@ionic/react';
 import { supabase } from '../supabaseClient';
 import { personCircle, person, help, create, logOut } from 'ionicons/icons';
@@ -32,6 +33,10 @@ const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
     role: '',
     profile_photo: '',
   });
+
+   useIonViewWillEnter(() => {
+      fetchProfile();   // ← Your refresh function
+    });
 
   // Fetch profile data when component mounts
   useEffect(() => {

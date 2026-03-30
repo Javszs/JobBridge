@@ -19,26 +19,37 @@ import {
   IonToast,
   IonButtons,
   IonBackButton,
+  IonIcon,
+  useIonLoading
 } from '@ionic/react';
+import { locate } from 'ionicons/icons';
 import { supabase } from '../supabaseClient';
+import { Geolocation } from '@capacitor/geolocation';
 import './PostJob.css';
 
 const PostJob: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; color: 'success' | 'danger' } | null>(null);
-
+  const [gettingLocation, setGettingLocation] = useState(false);
+  const [presentLoading, dismissLoading] = useIonLoading();
+  
   const [formData, setFormData] = useState({
     position: '',
     company: '',
     salary: '',
     location: '',
+    'full-location': '',
     quantity: 1,
     typeJobTime: 'full-time',     // New field
     description: '',
   });
 
   const handleChange = (field: keyof typeof formData, value: string | number) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    if (field === 'location') {
+      setFormData(prev => ({ ...prev, location: value as string, 'full-location': value as string }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
   };
 
   const handlePostJob = async () => {
@@ -64,6 +75,7 @@ const PostJob: React.FC = () => {
           company: formData.company.trim(),
           salary: formData.salary.trim() || null,
           location: formData.location.trim(),
+          'full-location': formData['full-location'].trim(),
           quantity: Number(formData.quantity) || 1,
           typeJobTime: formData.typeJobTime,        // New
           status: 'active',                         // Always active on post
@@ -82,6 +94,7 @@ const PostJob: React.FC = () => {
           company: '',
           salary: '',
           location: '',
+          'full-location': '',
           quantity: 1,
           typeJobTime: 'full-time',
           description: '',
@@ -89,19 +102,75 @@ const PostJob: React.FC = () => {
 
         setTimeout(() => window.history.back(), 1800);
       }
-    } catch (err: any) {
+    } catch {
       setToast({ message: 'Something went wrong', color: 'danger' });
     } finally {
       setLoading(false);
     }
   };
 
+  const getLocation = async () => {
+  try {
+    // STEP 1: Check if the app already has permission
+    const check = await Geolocation.checkPermissions();
+    
+    // STEP 2: If not granted, trigger the NATIVE Android Popup
+    if (check.location !== 'granted') {
+      const request = await Geolocation.requestPermissions();
+      if (request.location !== 'granted') {
+        setToast({ message: "Permission denied by user.", color: 'danger' });
+        return;
+      }
+    }
+
+    // STEP 3: Now that we have permission, start the loading UI
+    setGettingLocation(true);
+    await presentLoading({ message: 'Accessing GPS...', spinner: 'crescent' });
+
+    // STEP 4: Get coordinates with a longer timeout
+    const coordinates = await Geolocation.getCurrentPosition({
+      enableHighAccuracy: true, // Uses GPS satellites (Best for Manggahan)
+      timeout: 15000,           // Give it 15 seconds to find a signal
+      maximumAge: 3000          // Use a location no older than 3 seconds
+    });
+
+    const { latitude, longitude } = coordinates.coords;
+
+    // STEP 5: Reverse Geocode (Nominatim)
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+    );
+    const data = await response.json();
+    const addr = data.address;
+
+    // Get city for location field
+    const city = addr?.city || addr?.municipality || addr?.town || 'Unknown City';
+    
+    // Get full address for full-location field
+    const fullAddress = data.display_name || [city, addr?.country].filter(Boolean).join(', ');
+
+    setFormData(prev => ({ ...prev, location: city, 'full-location': fullAddress }));
+    setToast({ message: "Location updated!", color: 'success' });
+
+  } catch {
+    console.error("GPS Error occurred");
+    // This usually triggers if the phone is indoors or GPS hardware is busy
+    setToast({ 
+      message: "GPS Timeout. Try moving near a window or check App Permissions in Settings.", 
+      color: 'danger' 
+    });
+  } finally {
+    setGettingLocation(false);
+    await dismissLoading();
+  }
+};
+
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar color="primary">
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/recruiter/home" />
+            <IonBackButton defaultHref="/tabs/home" />
           </IonButtons>
           <IonTitle>Post New Job</IonTitle>
         </IonToolbar>
@@ -116,7 +185,7 @@ const PostJob: React.FC = () => {
                   <IonLabel position="stacked" className="form-label">Position / Job Title *</IonLabel>
                   <IonInput
                     value={formData.position}
-                    onIonChange={e => handleChange('position', e.detail.value!)}
+                    onIonInput={e => handleChange('position', e.detail.value!)}
                     placeholder="e.g. Senior Software Engineer"
                     clearInput
                   />
@@ -126,7 +195,7 @@ const PostJob: React.FC = () => {
                   <IonLabel position="stacked" className="form-label">Company Name *</IonLabel>
                   <IonInput
                     value={formData.company}
-                    onIonChange={e => handleChange('company', e.detail.value!)}
+                    onIonInput={e => handleChange('company', e.detail.value!)}
                     placeholder="e.g. TechNova Inc."
                     clearInput
                   />
@@ -136,7 +205,7 @@ const PostJob: React.FC = () => {
                   <IonLabel position="stacked" className="form-label">Salary Per Day</IonLabel>
                   <IonInput
                     value={formData.salary}
-                    onIonChange={e => handleChange('salary', e.detail.value!)}
+                    onIonInput={e => handleChange('salary', e.detail.value!)}
                     placeholder="e.g. ₱1000 / day"
                     clearInput
                   />
@@ -144,12 +213,22 @@ const PostJob: React.FC = () => {
 
                 <IonItem className="form-item" lines='none'>
                   <IonLabel position="stacked" className="form-label">Location *</IonLabel>
-                  <IonInput
-                    value={formData.location}
-                    onIonChange={e => handleChange('location', e.detail.value!)}
-                    placeholder="e.g. Quezon City, Manila"
-                    clearInput
-                  />
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <IonInput
+                      value={formData.location}
+                      onIonInput={e => handleChange('location', e.detail.value!)}
+                      placeholder="e.g. Quezon City, Manila"
+                      clearInput
+                    />
+                    <IonButton 
+                      fill="clear" 
+                      onClick={getLocation}
+                      disabled={gettingLocation}
+                      className='form-locate-icon'
+                      >
+                      <IonIcon icon={locate} />
+                    </IonButton>
+                  </div>
                 </IonItem>
 
                 <IonItem className="form-item" lines='none'>
@@ -172,7 +251,7 @@ const PostJob: React.FC = () => {
                   <IonInput
                     type="number"
                     value={formData.quantity}
-                    onIonChange={e => handleChange('quantity', parseInt(e.detail.value!) || 1)}
+                    onIonInput={e => handleChange('quantity', parseInt(e.detail.value!) || 1)}
                     min="1"
                   />
                 </IonItem>
@@ -181,7 +260,7 @@ const PostJob: React.FC = () => {
                   <IonLabel position="stacked" className="form-label">Job Description (Optional)</IonLabel>
                   <IonTextarea
                     value={formData.description}
-                    onIonChange={e => handleChange('description', e.detail.value!)}
+                    onIonInput={e => handleChange('description', e.detail.value!)}
                     placeholder="Describe the role, responsibilities, requirements, and benefits..."
                     rows={7}
                   />

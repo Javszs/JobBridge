@@ -134,7 +134,7 @@ const handleVerifyOTP = async () => {
           type="email"
           placeholder="Email"
           value={email}
-          onIonChange={e => setEmail(e.detail.value ?? '')}
+          onIonInput={e => setEmail(e.detail.value ?? '')}
         />
       </IonItem>
       <IonItem className="auth-input-item" lines="none">
@@ -143,7 +143,7 @@ const handleVerifyOTP = async () => {
           type={showPassword ? 'text' : 'password'}
           placeholder="Password"
           value={password}
-          onIonChange={e => setPassword(e.detail.value ?? '')}
+          onIonInput={e => setPassword(e.detail.value ?? '')}
         />
         <IonButton fill="clear" slot="end" onClick={() => setShowPassword(!showPassword)}>
           <IonIcon icon={showPassword ? eye : eyeOff} />
@@ -184,14 +184,14 @@ const handleVerifyOTP = async () => {
         <IonInput
           placeholder="First Name"
           value={firstName}
-          onIonChange={e => setFirstName(e.detail.value ?? '')}
+          onIonInput={e => setFirstName(e.detail.value ?? '')}
         />
       </IonItem>
       <IonItem className="auth-input-item" lines="none">
         <IonInput
           placeholder="Last Name"
           value={lastName}
-          onIonChange={e => setLastName(e.detail.value ?? '')}
+          onIonInput={e => setLastName(e.detail.value ?? '')}
         />
       </IonItem>
       <IonItem className="auth-input-item" lines="none">
@@ -199,7 +199,7 @@ const handleVerifyOTP = async () => {
           type="email"
           placeholder="Email"
           value={email}
-          onIonChange={e => setEmail(e.detail.value ?? '')}
+          onIonInput={e => setEmail(e.detail.value ?? '')}
         />
       </IonItem>
       <IonItem className="auth-input-item" lines="none">
@@ -207,7 +207,7 @@ const handleVerifyOTP = async () => {
           type={showPassword ? 'text' : 'password'}
           placeholder="Password"
           value={password}
-          onIonChange={e => setPassword(e.detail.value ?? '')}
+          onIonInput={e => setPassword(e.detail.value ?? '')}
         />
         <IonButton fill="clear" slot="end" onClick={() => setShowPassword(!showPassword)}>
           <IonIcon icon={showPassword ? eye : eyeOff} />
@@ -218,7 +218,7 @@ const handleVerifyOTP = async () => {
           type={showConfirmPassword ? 'text' : 'password'}
           placeholder="Confirm Password"
           value={confirmPassword}
-          onIonChange={e => setConfirmPassword(e.detail.value ?? '')}
+          onIonInput={e => setConfirmPassword(e.detail.value ?? '')}
         />
         <IonButton fill="clear" slot="end" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
           <IonIcon icon={showConfirmPassword ? eye : eyeOff} />
@@ -262,7 +262,7 @@ const handleVerifyOTP = async () => {
           maxlength={6}
           placeholder="000000"
           value={otpToken}
-          onIonChange={e => setOtpToken(e.detail.value ?? '')}
+          onIonInput={e => setOtpToken(e.detail.value ?? '')}
         />
       </IonItem>
       <IonButton 

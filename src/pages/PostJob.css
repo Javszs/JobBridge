@@ -55,3 +55,11 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+
+.form-locate-icon{
+  display: flex;
+  align-items: center;
+  --background: #bbd6ed !important;
+  height: 40px;
+  --color: #000000;
+}
