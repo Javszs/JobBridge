@@ -54,13 +54,35 @@ const Messages: React.FC = () => {
             name: otherUser ? `${otherUser.firstname} ${otherUser.lastname}` : 'Unknown User',
             profilePhotoUrl: profilePhotoUrl,
             lastMsg: "[Encrypted Message]", 
-            date: new Date(msg.created_at).toLocaleDateString()
+            date: new Date(msg.created_at).toLocaleDateString(),
+            jobPosition: null   // ← will be filled in next step
           };
         }
         return acc;
       }, {});
 
-      setConversations(Object.values(grouped || {}));
+      let convList = Object.values(grouped || {});
+
+      // 4. Fetch job position if chat_id matches a job_id
+      if (convList.length > 0) {
+        const chatIds = convList.map((c: any) => c.chat_id);
+
+        const { data: jobsData } = await supabase
+          .from('jobs')
+          .select('job_id, position')
+          .in('job_id', chatIds);
+
+        // Add job position to matching conversations
+        convList = convList.map((conv: any) => {
+          const matchingJob = jobsData?.find((j: any) => j.job_id === conv.chat_id);
+          return {
+            ...conv,
+            jobPosition: matchingJob ? matchingJob.position : null
+          };
+        });
+      }
+
+      setConversations(convList);
     } catch (err) {
       console.error("Selection Error:", err);
     } finally {
@@ -97,9 +119,10 @@ const Messages: React.FC = () => {
         ) : conversations.length === 0 ? (
           <div style={{ 
             textAlign: 'center', 
-          marginTop: '50px', 
-          color: '#010101', 
-          fontSize: '1.2rem' }}>
+            marginTop: '50px', 
+            color: '#010101', 
+            fontSize: '1.2rem' 
+          }}>
             <p>No conversations yet.</p>
           </div>
         ) : (
@@ -124,6 +147,19 @@ const Messages: React.FC = () => {
                 </IonAvatar>
                 <IonLabel class='Chats-label'>
                   <h2>{conv.name}</h2>
+
+                  {/* ← JOB POSITION SHOWS HERE */}
+                  {conv.jobPosition && (
+                    <p style={{ 
+                      color: '#3168b9', 
+                      fontWeight: 600, 
+                      margin: '2px 0 4px',
+                      fontSize: '0.95rem'
+                    }}>
+                      For Position: {conv.jobPosition}
+                    </p>
+                  )}
+
                   <p style={{ color: '#666' }}>{conv.lastMsg}</p>
                 </IonLabel>
                 <IonNote slot="end" style={{ fontSize: '0.8rem' }}>{conv.date}</IonNote>

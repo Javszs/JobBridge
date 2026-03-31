@@ -17,9 +17,9 @@ import {
   IonRefresherContent,
   RefresherEventDetail,
   useIonViewWillEnter,
-  IonAvatar
+  IonAvatar,
 } from '@ionic/react';
-import { send } from 'ionicons/icons';
+import { send, informationCircle} from 'ionicons/icons';
 import { supabase } from '../supabaseClient';
 import { useHistory } from 'react-router';
 import CryptoJS from 'crypto-js';
@@ -28,12 +28,17 @@ import ChatAvatar from '../components/ChatAvatar';
 const Message: React.FC = () => {
   const history = useHistory();
   const chatId = window.location.pathname.split('/').pop() || '';
+  const urlParams = new URLSearchParams(window.location.search);
+  const recipient = urlParams.get('recipient');
+
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [toast, setToast] = useState<{ message: string; color: 'success' | 'danger' } | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string>('');
-  const [otherUserId, setOtherUserId] = useState<string>(''); 
+  const [otherUserId, setOtherUserId] = useState<string>('');
+  const [otherUserName, setOtherUserName] = useState<string>('Chat'); // ← New
   const [loading, setLoading] = useState(true);
+
   const contentRef = useRef<HTMLIonContentElement>(null);
   const profilesRef = useRef<{ [key: string]: any }>({});
 
@@ -63,11 +68,6 @@ const Message: React.FC = () => {
       if (!user) return;
       setCurrentUserId(user.id);
 
-      // Get recipient from URL safely
-      const params = new URLSearchParams(window.location.search);
-      const recipientFromUrl = params.get('recipient');
-      if (recipientFromUrl) setOtherUserId(recipientFromUrl);
-
       const { data, error } = await supabase
         .from('messages')
         .select(`
@@ -78,24 +78,51 @@ const Message: React.FC = () => {
         .eq('chat_id', chatId)
         .order('created_at', { ascending: true });
 
-      if (data) {
-        if (data.length > 0) {
-          const firstMsg = data[0];
-          const other = firstMsg.sender_id === user.id ? firstMsg.receiver_id : firstMsg.sender_id;
-          setOtherUserId(other);
-          
-          // Cache profiles in ref to use for real-time updates
-          profilesRef.current[data[0].sender_id] = data[0].sender;
-          profilesRef.current[data[0].receiver_id] = data[0].receiver;
-        }
+      if (error) throw error;
 
-        const decrypted = data.map(msg => ({
-          ...msg,
-          message_text: decryptMessage(msg.encrypted_message, msg.sender_id, msg.receiver_id)
-        }));
-        setMessages(decrypted);
-        scrollToBottom(0);
+      if (data && data.length > 0) {
+        const firstMsg = data[0];
+        const isMeSender = firstMsg.sender_id === user.id;
+        const other = isMeSender ? firstMsg.receiver : firstMsg.sender;
+        const otherId = isMeSender ? firstMsg.receiver_id : firstMsg.sender_id;
+
+        setOtherUserId(otherId);
+        setOtherUserName(other ? `${other.firstname} ${other.lastname}`.trim() : 'Chat');
+
+        // Cache profiles
+        profilesRef.current[firstMsg.sender_id] = firstMsg.sender;
+        profilesRef.current[firstMsg.receiver_id] = firstMsg.receiver;
+      } else if (recipient) {
+        setOtherUserId(recipient);
+        const { data: userData } = await supabase
+          .from('users')
+          .select('firstname, lastname')
+          .eq('id', recipient)
+          .single();
+        if (userData) {
+          setOtherUserName(`${userData.firstname} ${userData.lastname}`.trim());
+        }
+      } else if (recipient) {
+        setOtherUserId(recipient);
+        const { data: userData } = await supabase
+          .from('users')
+          .select('firstname, lastname')
+          .eq('id', recipient)
+          .single();
+        if (userData) {
+          setOtherUserName(`${userData.firstname} ${userData.lastname}`.trim());
+        }
       }
+
+      const decrypted = data?.map(msg => ({
+        ...msg,
+        message_text: decryptMessage(msg.encrypted_message, msg.sender_id, msg.receiver_id)
+      })) || [];
+
+      setMessages(decrypted);
+      scrollToBottom(0);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -105,6 +132,7 @@ const Message: React.FC = () => {
     fetchMessages();
   });
 
+  // Real-time listener
   useEffect(() => {
     const channel = supabase
       .channel(`chat_${chatId}`)
@@ -112,38 +140,28 @@ const Message: React.FC = () => {
         { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, 
         (payload) => {
           const newMsg = payload.new as any;
-          
-          setMessages(prev => {
-            if (prev.find(m => m.id === newMsg.id)) return prev;
-            
-            const decrypted = {
-              ...newMsg,
-              message_text: decryptMessage(newMsg.encrypted_message, newMsg.sender_id, newMsg.receiver_id),
-              // Use cached profiles instead of re-fetching
-              sender: profilesRef.current[newMsg.sender_id],
-              receiver: profilesRef.current[newMsg.receiver_id]
-            };
-            return [...prev, decrypted];
-          });
+          const decrypted = {
+            ...newMsg,
+            message_text: decryptMessage(newMsg.encrypted_message, newMsg.sender_id, newMsg.receiver_id),
+          };
+          setMessages(prev => [...prev, decrypted]);
           scrollToBottom();
         }
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      void supabase.removeChannel(channel);
     };
   }, [chatId, decryptMessage, scrollToBottom]);
 
-  // sendMessage function remains similar but ensure otherUserId is set
   const sendMessage = async () => {
     if (!newMessage.trim() || !currentUserId || !otherUserId) {
       setToast({ message: "Recipient unknown. Try re-opening chat.", color: "danger" });
       return;
     }
 
-    const key = getSharedKey(currentUserId, otherUserId);
-    const encrypted = CryptoJS.AES.encrypt(newMessage, key).toString();
+    const encrypted = CryptoJS.AES.encrypt(newMessage, getSharedKey(currentUserId, otherUserId)).toString();
 
     const { error } = await supabase.from('messages').insert({
       chat_id: chatId,
@@ -159,10 +177,9 @@ const Message: React.FC = () => {
     }
   };
 
-  // ... (UI logic remains similar, but use a simpler avatar helper)
   const getAvatar = (user: any) => {
     if (user?.profile_photo) {
-       return supabase.storage.from('avatars').getPublicUrl(user.profile_photo).data.publicUrl;
+      return supabase.storage.from('avatars').getPublicUrl(user.profile_photo).data.publicUrl;
     }
     return null;
   };
@@ -172,22 +189,24 @@ const Message: React.FC = () => {
     event.detail.complete();
   };
 
+  // Navigate to specific job page (chat_id is usually job_id)
+  const goToJob = () => {
+    history.push(`/job/${chatId}`);
+  };
+
   if (loading) {
     return (
       <IonPage>
         <IonHeader>
           <IonToolbar color="primary">
             <IonButtons slot="start">
-              <IonBackButton defaultHref="/tabs/Chats" style={{'color': 'white'}}/>
+              <IonBackButton defaultHref="/tabs/Chats" style={{ color: 'white' }} />
             </IonButtons>
-            <IonTitle style={{'color': 'white'}}>Chat</IonTitle>
+            <IonTitle style={{ color: 'white' }}>Chat</IonTitle>
           </IonToolbar>
         </IonHeader>
         <IonContent fullscreen className="ion-padding">
-          <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-            <IonRefresherContent></IonRefresherContent>
-          </IonRefresher>
-          <div className='chat-container' style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+          <div className="chat-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
             <IonSpinner />
           </div>
         </IonContent>
@@ -199,96 +218,107 @@ const Message: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar color="primary">
-            <IonButtons slot="start">
-                <IonBackButton defaultHref="/tabs/Chats" style={{'color': 'white'}}/>
-            </IonButtons>
-            <IonTitle style={{'color': 'white'}}>Chat</IonTitle>
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/tabs/Chats" style={{ color: 'white' }} />
+          </IonButtons>
+
+          <IonTitle style={{ color: 'white' }}>Chat: {otherUserName}</IonTitle>
+
+          {/* Info icon → goes to Job.tsx */}
+          <IonButtons slot="end">
+            <IonButton onClick={goToJob}>
+              <IonIcon icon={informationCircle} style={{ color: 'white', fontSize: '2rem', marginRight: '8px' }} />
+            </IonButton>
+          </IonButtons>
         </IonToolbar>
       </IonHeader>
 
       <IonContent ref={contentRef}>
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-          <IonRefresherContent></IonRefresherContent>
+          <IonRefresherContent />
         </IonRefresher>
+
         <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {messages.map((msg) => {
             const isMe = msg.sender_id === currentUserId;
-  
+
             return (
-              <div key={msg.id} style={{ 
-                display: 'flex', 
-                  alignItems: 'flex-end', 
+              <div
+                key={msg.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-end',
                   justifyContent: isMe ? 'flex-end' : 'flex-start',
                   marginBottom: '12px',
-                  gap: '8px'
-                }}>
-                  {/* LEFT AVATAR (Other person) */}
-                  {!isMe && (
-                    <IonAvatar style={{ width: '60px', height: '60px', flexShrink: 0, marginRight: '8px' }}>
-                      <ChatAvatar user={msg.sender} isMe={false} />
-                    </IonAvatar>
-                  )}
-                  
-                  <div style={{ maxWidth: '70%' }}>
-                    {/* Message Bubble */}
-                    <div style={{
+                  gap: '8px',
+                }}
+              >
+                {!isMe && (
+                  <IonAvatar style={{ width: '60px', height: '60px', flexShrink: 0, marginRight: '8px' }}>
+                    <ChatAvatar user={msg.sender} isMe={false} />
+                  </IonAvatar>
+                )}
+
+                <div style={{ maxWidth: '70%' }}>
+                  <div
+                    style={{
                       background: isMe ? 'var(--ion-color-primary)' : '#f0f0f0',
                       color: isMe ? 'white' : 'black',
                       padding: '10px 16px',
                       borderRadius: isMe ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
-                      fontSize: '20px'
-                    }}>
-                      {msg.message_text}
-                    </div>
-                    {/* Timestamp */}
-                    <div 
-                    style={{ 
-                        fontSize: '10px', 
-                        color: '#d5eaeb', 
-                        textAlign: isMe ? 'right' : 'left', 
-                        marginTop: '4px' }}>
-                      {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </div>
+                      fontSize: '20px',
+                    }}
+                  >
+                    {msg.message_text}
                   </div>
-
-                  {/* RIGHT AVATAR (You) */}
-                  {isMe && (
-                    <IonAvatar style={{ width: '60px', height: '60px', flexShrink: 0, marginLeft: '8px' }}>
-                      <ChatAvatar user={msg.sender} isMe={true} />
-                    </IonAvatar>
-                  )}
+                  <div
+                    style={{
+                      fontSize: '10px',
+                      color: '#d5eaeb',
+                      textAlign: isMe ? 'right' : 'left',
+                      marginTop: '4px',
+                    }}
+                  >
+                    {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </div>
                 </div>
+
+                {isMe && (
+                  <IonAvatar style={{ width: '60px', height: '60px', flexShrink: 0, marginLeft: '8px' }}>
+                    <ChatAvatar user={msg.sender} isMe={true} />
+                  </IonAvatar>
+                )}
+              </div>
             );
-            })}
+          })}
         </div>
       </IonContent>
 
       <IonFooter>
-        <div style={{ 
-            padding: '8px', 
-            background: 'white', 
-            display: 'flex', 
-            alignItems: 'center', 
+        <div
+          style={{
+            padding: '8px',
+            background: 'white',
+            display: 'flex',
+            alignItems: 'center',
             gap: '8px',
-            backgroundColor: '#4685fb'
-            }}>
+            backgroundColor: '#4685fb',
+          }}
+        >
           <IonInput
             value={newMessage}
-            onIonInput={e => setNewMessage(e.detail.value!)}
+            onIonInput={(e) => setNewMessage(e.detail.value!)}
             placeholder="Type a message..."
-            style={{ 
-              '--background': '#e8e6e6', 
-              '--padding-start': '15px', 
+            style={{
+              '--background': '#e8e6e6',
+              '--padding-start': '15px',
               '--border-radius': '15px',
-              'margin-left': '8px',
-              'color': '#000000', 
+              marginLeft: '8px',
+              color: '#000000',
             }}
           />
           <IonButton fill="clear" onClick={sendMessage}>
-            <IonIcon icon={send} slot="icon-only" 
-            style={{
-                'color': 'white'
-            }}/>
+            <IonIcon icon={send} slot="icon-only" style={{ color: 'white' }} />
           </IonButton>
         </div>
       </IonFooter>

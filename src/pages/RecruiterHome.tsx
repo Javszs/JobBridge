@@ -288,8 +288,12 @@ const RecruiterHome: React.FC = () => {
                                   View
                                 </IonButton>
                                 <span className="seeker-tag">{job.typeJobTime}</span>
-                                <IonButton fill="clear" className="seeker-quick-apply">
-                                  Quick Apply
+                                <IonButton 
+                                  fill="clear" 
+                                  className="seeker-quick-apply"
+                                  onClick={() => history.push(`/message/${job.job_id}?recipient=${job.recruiter_id}`)}
+                                >
+                                  Quick Message
                                 </IonButton>
                               </div>
                             </div>

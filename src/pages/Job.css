@@ -207,18 +207,10 @@
   margin: 20px;
 }
 
-.specific-job-apply-btn {
-  --background: #3168b9;
-  --color: white;
-  height: 56px;
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
 .specific-job-message-btn {
-  --color: #3168b9;
-  --border-color: #073579;
-  --background: #fff;
+  --color: #ffffff;
+  --border-color: #291298;
+  --background: #0066ff;
   height: 56px;
   font-size: 1.05rem;
   font-weight: 600;

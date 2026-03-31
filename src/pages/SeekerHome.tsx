@@ -68,7 +68,7 @@ const SeekerHome: React.FC = () => {
         job_id,
         jobs!inner (
           job_id, position, company, salary, location, 
-          typeJobTime, created_at, status, quantity
+          typeJobTime, created_at, status, quantity, recruiter_id
         )
       `)
       .eq('user_id', user.id)
@@ -249,8 +249,12 @@ const SeekerHome: React.FC = () => {
                           View
                         </IonButton>
                         <span className="seeker-tag">{job.typeJobTime}</span>
-                        <IonButton fill="clear" className="seeker-quick-apply">
-                          Quick Apply
+                        <IonButton 
+                          fill="clear" 
+                          className="seeker-quick-apply"
+                          onClick={() => history.push(`/message/${job.job_id}?recipient=${job.recruiter_id}`)}
+                        >
+                          Quick Message
                         </IonButton>
                       </div>
                     </div>
