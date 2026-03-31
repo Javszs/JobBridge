@@ -11,7 +11,7 @@ import {
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { home, briefcase, person, informationCircleOutline } from 'ionicons/icons';
+import { home, briefcase, person, chatbubbleEllipses } from 'ionicons/icons';
 
 import Home from './Tabs/Home';
 import Jobs from './Tabs/Jobs';
@@ -38,6 +38,8 @@ import '@ionic/react/css/palettes/dark.system.css';
 import './theme/variables.css';
 import EditJob from './pages/EditJob';
 import Job from './pages/Job';
+import Messages from './Tabs/Chats';
+import Message from './pages/Message';
 
 
 setupIonicReact();
@@ -75,6 +77,8 @@ const App: React.FC = () => {
           <Route path="/recruiter/post-job" component={PostJob} exact />
           <Route path="/recruiter/edit-job/:jobId" component={EditJob} exact />
           <Route path="/job/:jobId" component={Job} exact />
+          <Route path="/messages" component={Messages} exact />
+          <Route path="/message/:chatId" component={Message} exact />
 
           {/* Tabs Routes – only accessible when logged in */}
           <Route path="/tabs">
@@ -87,11 +91,8 @@ const App: React.FC = () => {
                   <Route exact path="/tabs/Jobs">
                     <Jobs />
                   </Route>
-                  <Route exact path="/tabs/About">
-                    <About />
-                  </Route>
-                  <Route exact path="/tabs/Contacts">
-                    <Contacts />
+                  <Route exact path="/tabs/Chats">
+                    <Messages />
                   </Route>
                   <Route exact path="/tabs/Profile" render={() => <Profile onLogout={handleLogout} />} />
                   <Route exact path="/tabs/">
@@ -107,6 +108,10 @@ const App: React.FC = () => {
                   <IonTabButton tab="Jobs" href="/tabs/Jobs">
                     <IonIcon aria-hidden="true" icon={briefcase} />
                     <IonLabel>Jobs</IonLabel>
+                  </IonTabButton>
+                  <IonTabButton tab="Chats" href="/tabs/Chats">
+                    <IonIcon aria-hidden="true" icon={chatbubbleEllipses} />
+                    <IonLabel>Chats</IonLabel>
                   </IonTabButton>
                   <IonTabButton tab="Profile" href="/tabs/Profile">
                     <IonIcon aria-hidden="true" icon={person} />

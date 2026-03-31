@@ -15,9 +15,11 @@ import {
 import { mapOutline, chatbubbleOutline, heartOutline, heart } from 'ionicons/icons';
 import { supabase } from '../supabaseClient';
 import MapComponent from '../components/MapComponent'; 
+import { useHistory } from 'react-router-dom';
 import './Job.css';
 
 const Job: React.FC = () => {
+  const history = useHistory();
   const [job, setJob] = useState<any>(null);
   const [recruiterName, setRecruiterName] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -220,10 +222,43 @@ const Job: React.FC = () => {
           <IonButton expand="block" color="primary" className="specific-job-apply-btn">
             Apply Now
           </IonButton>
-          <IonButton expand="block" fill="outline" className="specific-job-message-btn">
-            <IonIcon icon={chatbubbleOutline} slot="start" />
-            Message Recruiter
-          </IonButton>
+          {/* Replace the old Message button with this */}
+            <IonButton 
+            expand="block" 
+            fill="outline" 
+            className="specific-job-message-btn"
+            onClick={async () => {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user || !job?.recruiter_id) return;
+
+                // Get or create chat between current user and recruiter
+                let { data: existingChat } = await supabase
+                  .from('messages')
+                  .select('chat_id')
+                  .or(`and(sender_id.eq.${user.id},receiver_id.eq.${job.recruiter_id}),and(sender_id.eq.${job.recruiter_id},receiver_id.eq.${user.id})`)
+                  .limit(1)
+                  .single();
+
+                let chatId = existingChat?.chat_id;
+
+                if (!chatId) {
+                  // Create new chat
+                  const { data: newChat } = await supabase
+                    .from('chats')
+                    .insert({})
+                    .select('id')
+                    .single();
+                
+                  chatId = newChat?.id;
+                }
+
+                // Navigate to chat
+                history.push(`/message/${job.job_id}?recipient=${job.recruiter_id}`);
+              }}
+            >
+              <IonIcon icon={chatbubbleOutline} slot="start" />
+              Message Recruiter
+            </IonButton>
         </div>
 
         <IonToast
