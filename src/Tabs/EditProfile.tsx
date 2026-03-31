@@ -260,10 +260,10 @@ const EditProfile: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar color="primary">
-          <IonButtons slot="start">
+          <IonButtons slot="start" style={{'color': 'white'}}>
             <IonBackButton defaultHref="/tabs/profile" />
           </IonButtons>
-          <IonTitle>Edit Profile</IonTitle>
+          <IonTitle style={{'color': 'white'}}>Edit Profile</IonTitle>
         </IonToolbar>
       </IonHeader>
 

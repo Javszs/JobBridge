@@ -1,0 +1,45 @@
+.Chats-List {
+  margin-top: 16px;
+  background-color: #3168B9;
+}
+
+.Chat-Title {
+  color: white;
+  text-align: center;
+}
+
+.Chat-Item {
+  --background: white;
+  --border-radius: 20px;
+  margin-bottom: 8px;
+  padding : 5px 20px !important;
+   --min-height: 100px;
+}
+
+.Chats-label p{
+  font-size: 1rem;
+  margin: 5px !important;
+  margin-left: 25px !important;
+}
+
+.Chats-label h2{
+  font-size: 1.2rem;
+  color: #1e3a8a !important;
+  font-weight: 600;
+  margin: 2px !important;
+  margin-left: 25px !important;
+}
+
+.avatar-placeholder {
+  background: #3880ff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(1.7);
+  height: 100%;
+  width: 100%;
+  border-radius: 20%;
+  margin-left: 15px;
+  border: 1.6px solid #083579;
+}

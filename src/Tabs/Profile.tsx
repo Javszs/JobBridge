@@ -106,7 +106,7 @@ const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
     <IonPage>
       <IonHeader>
         <IonToolbar  color="primary">
-          <IonTitle style={{ textAlign: 'center' }}>My Profile</IonTitle>
+          <IonTitle className='Chat-Title'>My Profile</IonTitle>
         </IonToolbar>
       </IonHeader>
 

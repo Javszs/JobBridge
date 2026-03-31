@@ -169,7 +169,7 @@ const Jobs: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar color="primary">
-          <IonTitle style={{ textAlign: 'center' }}>All Available Jobs</IonTitle>
+          <IonTitle className='Chat-Title'>All Available Jobs</IonTitle>
         </IonToolbar>
       </IonHeader>
 
