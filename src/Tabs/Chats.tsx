@@ -91,7 +91,7 @@ const Messages: React.FC = () => {
         </IonRefresher>
 
         {loading ? (
-          <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
             <IonSpinner name="crescent" />
           </div>
         ) : conversations.length === 0 ? (
