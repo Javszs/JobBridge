@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router';
 import {
   IonContent,
   IonHeader,
@@ -26,6 +27,7 @@ import { supabase } from '../supabaseClient';
 import './Jobs.css';
 
 const Jobs: React.FC = () => {
+  const history = useHistory();
   const [jobs, setJobs] = useState<any[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<any[]>([]);
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
@@ -260,6 +262,12 @@ const Jobs: React.FC = () => {
                           <span>🕒 {new Date(job.created_at).toLocaleDateString()}</span>
                         </div>
                         <div className="job-tags">
+                          <IonButton 
+                            fill="clear" 
+                            className="seeker-quick-apply"
+                            onClick={() => history.push(`/job/${job.job_id}`)} >
+                            View
+                          </IonButton>
                           <span className="tag">{job.typeJobTime}</span>
                           <IonButton fill="clear" className="seeker-quick-apply">
                             Quick Apply

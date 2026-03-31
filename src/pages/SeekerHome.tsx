@@ -132,7 +132,7 @@ const SeekerHome: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar color="primary">
+        <IonToolbar className='seeker-home-header'>
           <div className="seeker-header-content">
             <div>
               <h1 className="seeker-greeting">Hi, {userName}!</h1>
@@ -242,6 +242,12 @@ const SeekerHome: React.FC = () => {
                         <span>🕒 {new Date(job.created_at).toLocaleDateString()}</span>
                       </div>
                       <div className="seeker-job-tags">
+                        <IonButton 
+                          fill="clear" 
+                          className="seeker-quick-apply"
+                          onClick={() => history.push(`/job/${job.job_id}`)} >
+                          View
+                        </IonButton>
                         <span className="seeker-tag">{job.typeJobTime}</span>
                         <IonButton fill="clear" className="seeker-quick-apply">
                           Quick Apply

@@ -12,7 +12,7 @@ import {
   IonButtons,
   IonBackButton,
 } from '@ionic/react';
-import { mapOutline, chatbubbleOutline, heartOutline } from 'ionicons/icons';
+import { mapOutline, chatbubbleOutline, heartOutline, heart } from 'ionicons/icons';
 import { supabase } from '../supabaseClient';
 import MapComponent from '../components/MapComponent'; 
 import './Job.css';
@@ -22,6 +22,7 @@ const Job: React.FC = () => {
   const [recruiterName, setRecruiterName] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<{ message: string; color: 'success' | 'danger' } | null>(null);
+  const [isSaved, setIsSaved] = useState(false);
 
   const jobId = window.location.pathname.split('/').pop() || '';
 
@@ -46,6 +47,18 @@ const Job: React.FC = () => {
         setJob(data);
         const fullName = `${data.users?.firstname || ''} ${data.users?.lastname || ''}`.trim();
         setRecruiterName(fullName || 'Unknown Recruiter');
+
+        // Check if job is saved
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: savedData } = await supabase
+            .from('saved_jobs')
+            .select('job_id')
+            .eq('user_id', user.id)
+            .eq('job_id', jobId)
+            .single();
+          setIsSaved(!!savedData);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -60,6 +73,37 @@ const Job: React.FC = () => {
     if (!location) return;
     const encodedLocation = encodeURIComponent(location);
     window.open(`https://www.google.com/maps/search/?api=1&query=${encodedLocation}`, '_blank', 'noreferrer');
+  };
+
+  const toggleSaveJob = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setToast({ message: 'You must be logged in to save jobs', color: 'danger' });
+      return;
+    }
+
+    try {
+      if (isSaved) {
+        const { error } = await supabase
+          .from('saved_jobs')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('job_id', job.job_id);
+        if (error) throw error;
+        setIsSaved(false);
+        setToast({ message: 'Job unsaved', color: 'danger' });
+      } else {
+        const { error } = await supabase
+          .from('saved_jobs')
+          .insert({ user_id: user.id, job_id: job.job_id });
+        if (error) throw error;
+        setIsSaved(true);
+        setToast({ message: 'Job saved', color: 'success' });
+      }
+    } catch (err) {
+      console.error(err);
+      setToast({ message: 'Failed to save/unsave job', color: 'danger' });
+    }
   };
 
   if (loading) {
@@ -108,7 +152,11 @@ const Job: React.FC = () => {
               <h2 className="specific-job-position">{job.position}</h2>
               <p className="specific-job-company">{job.company}</p>
             </div>
-            <IonIcon icon={heartOutline} className="specific-job-save-icon" />
+            <IonIcon 
+              icon={isSaved ? heart : heartOutline} 
+              className={`save-icon ${isSaved ? 'saved' : ''}`}
+              onClick={() => toggleSaveJob()}
+            />
           </div>
 
           <div className="specific-job-meta">
@@ -128,7 +176,7 @@ const Job: React.FC = () => {
 
           <div className="specific-job-tags">
             <span className="specific-job-tag">{job.typeJobTime}</span>
-            <span className="specific-job-tag">Qty: {job.quantity}</span>
+            <span className="specific-job-tag">Open Positions: {job.quantity}</span>
             <span className="specific-job-tag status">{job.status}</span>
           </div>
         </div>
