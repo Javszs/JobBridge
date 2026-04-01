@@ -41,6 +41,7 @@ const EditJob: React.FC = () => {
     quantity: 1,
     typeJobTime: 'full-time',
     description: '',
+    status: 'active',
   });
 
   // Get jobId from URL params (safer way)
@@ -79,6 +80,7 @@ const EditJob: React.FC = () => {
           quantity: data.quantity || 1,
           typeJobTime: data.typeJobTime || 'full-time',
           description: data.description || '',
+          status: data.status || 'active',
         });
       }
     } catch (err) {
@@ -177,6 +179,7 @@ const EditJob: React.FC = () => {
           quantity: Number(formData.quantity) || 1,
           typeJobTime: formData.typeJobTime,
           description: formData.description.trim() || null,
+          status: formData.status,
           updated_at: new Date().toISOString(),
         })
         .eq('job_id', jobId)
@@ -294,6 +297,18 @@ const EditJob: React.FC = () => {
                     placeholder="Describe the role, responsibilities, requirements, and benefits..."
                     rows={7}
                   />
+                </IonItem>
+
+                <IonItem className="form-item" lines="none">
+                  <IonLabel position="stacked" className="form-label">Job Status</IonLabel>
+                  <IonSelect
+                    value={formData.status}
+                    onIonChange={e => handleChange('status', e.detail.value!)}
+                    placeholder="Select job status"
+                  >
+                    <IonSelectOption value="active">Active</IonSelectOption>
+                    <IonSelectOption value="closed">Closed</IonSelectOption>
+                  </IonSelect>
                 </IonItem>
               </IonList>
 

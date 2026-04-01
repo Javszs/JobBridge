@@ -183,3 +183,25 @@
   color: #ef4444;
 }
 
+.filter-mainlist {
+  --background: #f1f5f9;
+  background-color: #cbcbcb;
+  border-radius: 20px;
+  padding: 8px 12px;
+}
+
+.filters-list {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  white-space: nowrap;
+  --background: #f1f5f9;
+  color: #1e2937;
+  margin: 15px 8px;
+  border-radius: 20px;
+}
+
+.peso-label {
+  margin-right: 10px;
+  margin-left: 10px;
+}

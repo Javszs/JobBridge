@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   IonPage, IonHeader, IonToolbar, IonTitle, IonContent, 
   IonList, IonItem, IonAvatar, IonLabel, IonNote, IonRefresher, 
-  IonSpinner, IonRefresherContent, useIonViewWillEnter 
+  IonSpinner, IonRefresherContent, useIonViewWillEnter, IonAlert
 } from '@ionic/react';
 import { supabase } from '../supabaseClient';
 import './Chats.css';
@@ -10,14 +10,14 @@ import './Chats.css';
 const Messages: React.FC = () => {
   const [conversations, setConversations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [archiveAlert, setArchiveAlert] = useState<{ isOpen: boolean; chatId: string }>({ isOpen: false, chatId: '' });
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
 
   const fetchConversations = useCallback(async () => {
     try {
-      // 1. Get Logged in User
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // 2. Fetch messages where user is sender OR receiver
       const { data, error } = await supabase
         .from('messages')
         .select(`
@@ -30,18 +30,20 @@ const Messages: React.FC = () => {
           receiver:users!messages_receiver_id_fkey (firstname, lastname, profile_photo)
         `)
         .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+        .eq('archived', false)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Fetch error:", error);
+        return;
+      }
 
-      // 3. Group messages by chat_id to get only the LATEST message per conversation
       const grouped = data?.reduce((acc: any, msg: any) => {
         if (!acc[msg.chat_id]) {
           const isMeSender = msg.sender_id === user.id;
           const otherUser = isMeSender ? msg.receiver : msg.sender;
           const otherId = isMeSender ? msg.receiver_id : msg.sender_id;
           
-          // Get profile photo URL
           let profilePhotoUrl = '';
           if (otherUser?.profile_photo) {
             const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(otherUser.profile_photo);
@@ -51,11 +53,11 @@ const Messages: React.FC = () => {
           acc[msg.chat_id] = {
             chat_id: msg.chat_id,
             otherUserId: otherId,
-            name: otherUser ? `${otherUser.firstname} ${otherUser.lastname}` : 'Unknown User',
-            profilePhotoUrl: profilePhotoUrl,
+            name: otherUser ? `${otherUser.firstname} ${otherUser.lastname}`.trim() : 'Unknown User',
+            profilePhotoUrl,
             lastMsg: "[Encrypted Message]", 
             date: new Date(msg.created_at).toLocaleDateString(),
-            jobPosition: null   // ← will be filled in next step
+            jobPosition: null
           };
         }
         return acc;
@@ -63,23 +65,18 @@ const Messages: React.FC = () => {
 
       let convList = Object.values(grouped || {});
 
-      // 4. Fetch job position if chat_id matches a job_id
+      // Add job position
       if (convList.length > 0) {
         const chatIds = convList.map((c: any) => c.chat_id);
-
         const { data: jobsData } = await supabase
           .from('jobs')
           .select('job_id, position')
           .in('job_id', chatIds);
 
-        // Add job position to matching conversations
-        convList = convList.map((conv: any) => {
-          const matchingJob = jobsData?.find((j: any) => j.job_id === conv.chat_id);
-          return {
-            ...conv,
-            jobPosition: matchingJob ? matchingJob.position : null
-          };
-        });
+        convList = convList.map((conv: any) => ({
+          ...conv,
+          jobPosition: jobsData?.find((j: any) => j.job_id === conv.chat_id)?.position || null
+        }));
       }
 
       setConversations(convList);
@@ -90,7 +87,6 @@ const Messages: React.FC = () => {
     }
   }, []);
 
-  // Use Ionic lifecycle hook to refresh list every time the tab is clicked
   useIonViewWillEnter(() => {
     fetchConversations();
   });
@@ -98,6 +94,42 @@ const Messages: React.FC = () => {
   const handleRefresh = async (event: CustomEvent) => {
     await fetchConversations();
     event.detail.complete();
+  };
+
+    // Archive entire chat
+  const archiveChat = async (chatId: string) => {
+    try {
+      console.log(`Attempting to archive chat: ${chatId}`);
+
+      const { error } = await supabase
+        .from('messages')
+        .update({ archived: true })
+        .eq('chat_id', chatId);
+
+      if (error) {
+        console.error("Archive Error:", error);
+        return;
+      }
+
+      await fetchConversations();  
+      setArchiveAlert({ isOpen: false, chatId: '' });
+
+    } catch (err) {
+      console.error("Unexpected Archive Error:", err);
+    }
+  };
+
+  const handleTouchStart = (chatId: string) => {
+    longPressTimer.current = setTimeout(() => {
+      setArchiveAlert({ isOpen: true, chatId });
+    }, 600);
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
   };
 
   return (
@@ -135,6 +167,8 @@ const Messages: React.FC = () => {
                 detail={true}
                 className='Chat-Item'
                 lines='none'
+                onTouchStart={() => handleTouchStart(conv.chat_id)}
+                onTouchEnd={handleTouchEnd}
               >
                 <IonAvatar slot="start">
                   {conv.profilePhotoUrl ? (
@@ -145,10 +179,9 @@ const Messages: React.FC = () => {
                     </div>
                   )}
                 </IonAvatar>
-                <IonLabel class='Chats-label'>
+                <IonLabel className='Chats-label'>
                   <h2>{conv.name}</h2>
 
-                  {/* ← JOB POSITION SHOWS HERE */}
                   {conv.jobPosition && (
                     <p style={{ 
                       color: '#3168b9', 
@@ -168,6 +201,20 @@ const Messages: React.FC = () => {
           </IonList>
         )}
       </IonContent>
+
+      <IonAlert
+        isOpen={archiveAlert.isOpen}
+        onDidDismiss={() => setArchiveAlert({ isOpen: false, chatId: '' })}
+        header="Archive Chat"
+        message="Do you want to archive this conversation? It will be hidden from both yours and other's chat list."
+        buttons={[
+          { text: 'Cancel', role: 'cancel' },
+          { 
+            text: 'Archive', 
+            handler: () => archiveChat(archiveAlert.chatId),
+          },
+        ]}
+      />
     </IonPage>
   );
 };

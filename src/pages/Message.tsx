@@ -168,6 +168,7 @@ const Message: React.FC = () => {
       sender_id: currentUserId,
       receiver_id: otherUserId,
       encrypted_message: encrypted,
+      archived: false,
     });
 
     if (error) {
