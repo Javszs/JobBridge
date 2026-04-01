@@ -10,7 +10,7 @@ import './Chats.css';
 const Messages: React.FC = () => {
   const [conversations, setConversations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [archiveAlert, setArchiveAlert] = useState<{ isOpen: boolean; chatId: string }>({ isOpen: false, chatId: '' });
+  const [archiveAlert, setArchiveAlert] = useState<{ isOpen: boolean; chatId: string; otherUserId: string }>({ isOpen: false, chatId: '', otherUserId: '' });
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
 
   const fetchConversations = useCallback(async () => {
@@ -39,19 +39,24 @@ const Messages: React.FC = () => {
       }
 
       const grouped = data?.reduce((acc: any, msg: any) => {
-        if (!acc[msg.chat_id]) {
-          const isMeSender = msg.sender_id === user.id;
-          const otherUser = isMeSender ? msg.receiver : msg.sender;
-          const otherId = isMeSender ? msg.receiver_id : msg.sender_id;
-          
+        const isMeSender = msg.sender_id === user.id;
+        const otherUser = isMeSender ? msg.receiver : msg.sender;
+        const otherId = isMeSender ? msg.receiver_id : msg.sender_id;
+        
+        // Group by both otherUserId and chat_id to allow multiple chats with same user for different jobs
+        const groupKey = `${otherId}-${msg.chat_id}`;
+        
+        if (!acc[groupKey]) {
           let profilePhotoUrl = '';
           if (otherUser?.profile_photo) {
             const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(otherUser.profile_photo);
             profilePhotoUrl = urlData.publicUrl;
           }
 
-          acc[msg.chat_id] = {
-            chat_id: msg.chat_id,
+          acc[groupKey] = {
+            chat_id: msg.chat_id, // the actual chat_id from messages table
+            message_chat_id: msg.chat_id, // the actual chat_id from messages table
+            job_id: msg.chat_id, // the job_id from the message
             otherUserId: otherId,
             name: otherUser ? `${otherUser.firstname} ${otherUser.lastname}`.trim() : 'Unknown User',
             profilePhotoUrl,
@@ -67,15 +72,15 @@ const Messages: React.FC = () => {
 
       // Add job position
       if (convList.length > 0) {
-        const chatIds = convList.map((c: any) => c.chat_id);
+        const jobIds = convList.map((c: any) => c.job_id);
         const { data: jobsData } = await supabase
           .from('jobs')
           .select('job_id, position')
-          .in('job_id', chatIds);
+          .in('job_id', jobIds);
 
         convList = convList.map((conv: any) => ({
           ...conv,
-          jobPosition: jobsData?.find((j: any) => j.job_id === conv.chat_id)?.position || null
+          jobPosition: jobsData?.find((j: any) => j.job_id === conv.job_id)?.position || null
         }));
       }
 
@@ -96,15 +101,17 @@ const Messages: React.FC = () => {
     event.detail.complete();
   };
 
-    // Archive entire chat
-  const archiveChat = async (chatId: string) => {
+    // Archive entire chat by chat_id
+  const archiveChat = async (chatId: string, otherUserId: string) => {
     try {
-      console.log(`Attempting to archive chat: ${chatId}`);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
       const { error } = await supabase
         .from('messages')
         .update({ archived: true })
-        .eq('chat_id', chatId);
+        .eq('chat_id', chatId)
+        .or(`and(sender_id.eq.${user.id},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${user.id})`);
 
       if (error) {
         console.error("Archive Error:", error);
@@ -112,16 +119,16 @@ const Messages: React.FC = () => {
       }
 
       await fetchConversations();  
-      setArchiveAlert({ isOpen: false, chatId: '' });
+      setArchiveAlert({ isOpen: false, chatId: '', otherUserId: '' });
 
     } catch (err) {
       console.error("Unexpected Archive Error:", err);
     }
   };
 
-  const handleTouchStart = (chatId: string) => {
+  const handleTouchStart = (chatId: string, otherUserId: string) => {
     longPressTimer.current = setTimeout(() => {
-      setArchiveAlert({ isOpen: true, chatId });
+      setArchiveAlert({ isOpen: true, chatId, otherUserId });
     }, 600);
   };
 
@@ -161,13 +168,13 @@ const Messages: React.FC = () => {
           <IonList className='Chats-List'>
             {conversations.map((conv) => (
               <IonItem 
-                key={conv.chat_id} 
-                routerLink={`/message/${conv.chat_id}?recipient=${conv.otherUserId}`}
+                key={`${conv.otherUserId}-${conv.chat_id}`}
+                routerLink={`/message/${conv.otherUserId}?chat_id=${conv.chat_id}`}
                 button
                 detail={true}
                 className='Chat-Item'
                 lines='none'
-                onTouchStart={() => handleTouchStart(conv.chat_id)}
+                onTouchStart={() => handleTouchStart(conv.chat_id, conv.otherUserId)}
                 onTouchEnd={handleTouchEnd}
               >
                 <IonAvatar slot="start">
@@ -204,14 +211,14 @@ const Messages: React.FC = () => {
 
       <IonAlert
         isOpen={archiveAlert.isOpen}
-        onDidDismiss={() => setArchiveAlert({ isOpen: false, chatId: '' })}
+        onDidDismiss={() => setArchiveAlert({ isOpen: false, chatId: '', otherUserId: '' })}
         header="Archive Chat"
         message="Do you want to archive this conversation? It will be hidden from both yours and other's chat list."
         buttons={[
           { text: 'Cancel', role: 'cancel' },
           { 
             text: 'Archive', 
-            handler: () => archiveChat(archiveAlert.chatId),
+            handler: () => archiveChat(archiveAlert.chatId, archiveAlert.otherUserId),
           },
         ]}
       />

@@ -224,7 +224,7 @@ const Job: React.FC = () => {
             expand="block" 
             fill="outline" 
             className="specific-job-message-btn"
-            onClick={() => history.push(`/message/${job.job_id}?recipient=${job.recruiter_id}`)}
+            onClick={() => history.push(`/message/${job.recruiter_id}?chat_id=${job.job_id}`)}
             >
               <IonIcon icon={chatbubbleOutline} slot="start" />
               Message Recruiter

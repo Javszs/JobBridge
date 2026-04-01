@@ -310,7 +310,7 @@ const Jobs: React.FC = () => {
                       <IonButton 
                         fill="clear" 
                         className="seeker-quick-apply"
-                        onClick={() => history.push(`/message/${job.job_id}?recipient=${job.recruiter_id}`)}
+                        onClick={() => history.push(`/message/${job.recruiter_id}?chat_id=${job.job_id}`)}
                       >
                         Quick Message
                       </IonButton>

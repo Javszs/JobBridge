@@ -27,9 +27,9 @@ import ChatAvatar from '../components/ChatAvatar';
 
 const Message: React.FC = () => {
   const history = useHistory();
-  const chatId = window.location.pathname.split('/').pop() || '';
+  const recipient = window.location.pathname.split('/').pop() || '';
   const urlParams = new URLSearchParams(window.location.search);
-  const recipient = urlParams.get('recipient');
+  const chatId = urlParams.get('chat_id') || '';
 
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -75,6 +75,7 @@ const Message: React.FC = () => {
           sender:users!messages_sender_id_fkey (firstname, lastname, profile_photo),
           receiver:users!messages_receiver_id_fkey (firstname, lastname, profile_photo)
         `)
+        .or(`and(sender_id.eq.${user.id},receiver_id.eq.${recipient}),and(sender_id.eq.${recipient},receiver_id.eq.${user.id})`)
         .eq('chat_id', chatId)
         .order('created_at', { ascending: true });
 
@@ -126,7 +127,7 @@ const Message: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [chatId, decryptMessage, scrollToBottom]);
+  }, [recipient, decryptMessage, scrollToBottom]);
 
   useIonViewWillEnter(() => {
     fetchMessages();
@@ -135,17 +136,19 @@ const Message: React.FC = () => {
   // Real-time listener
   useEffect(() => {
     const channel = supabase
-      .channel(`chat_${chatId}`)
+      .channel(`chat_${recipient}`)
       .on('postgres_changes', 
-        { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, 
+        { event: 'INSERT', schema: 'public', table: 'messages' }, 
         (payload) => {
           const newMsg = payload.new as any;
-          const decrypted = {
-            ...newMsg,
-            message_text: decryptMessage(newMsg.encrypted_message, newMsg.sender_id, newMsg.receiver_id),
-          };
-          setMessages(prev => [...prev, decrypted]);
-          scrollToBottom();
+          if ((newMsg.sender_id === currentUserId && newMsg.receiver_id === recipient) || (newMsg.sender_id === recipient && newMsg.receiver_id === currentUserId)) {
+            const decrypted = {
+              ...newMsg,
+              message_text: decryptMessage(newMsg.encrypted_message, newMsg.sender_id, newMsg.receiver_id),
+            };
+            setMessages(prev => [...prev, decrypted]);
+            scrollToBottom();
+          }
         }
       )
       .subscribe();
@@ -153,7 +156,7 @@ const Message: React.FC = () => {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [chatId, decryptMessage, scrollToBottom]);
+  }, [recipient, decryptMessage, scrollToBottom, currentUserId]);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !currentUserId || !otherUserId) {
@@ -163,8 +166,11 @@ const Message: React.FC = () => {
 
     const encrypted = CryptoJS.AES.encrypt(newMessage, getSharedKey(currentUserId, otherUserId)).toString();
 
+    const pairId = [currentUserId, otherUserId].sort().join('-');
+    const finalChatId = chatId || pairId;
+
     const { error } = await supabase.from('messages').insert({
-      chat_id: chatId,
+      chat_id: finalChatId,
       sender_id: currentUserId,
       receiver_id: otherUserId,
       encrypted_message: encrypted,
@@ -190,9 +196,14 @@ const Message: React.FC = () => {
     event.detail.complete();
   };
 
-  // Navigate to specific job page (chat_id is usually job_id)
+  // Navigate to specific job page (if chatId is provided)
   const goToJob = () => {
-    history.push(`/job/${chatId}`);
+    if (chatId) {
+      history.push(`/job/${chatId}`);
+    } else {
+      // Perhaps navigate to jobs list or do nothing
+      history.push('/tabs/Jobs');
+    }
   };
 
   if (loading) {
@@ -223,7 +234,7 @@ const Message: React.FC = () => {
             <IonBackButton defaultHref="/tabs/Chats" style={{ color: 'white' }} />
           </IonButtons>
 
-          <IonTitle style={{ color: 'white' }}>Chat: {otherUserName}</IonTitle>
+<IonTitle style={{ color: 'white' }}>Chat with {otherUserName}</IonTitle>
 
           {/* Info icon → goes to Job.tsx */}
           <IonButtons slot="end">
