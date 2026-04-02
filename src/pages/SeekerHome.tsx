@@ -138,7 +138,8 @@ const SeekerHome: React.FC = () => {
               <h1 className="seeker-greeting">Hi, {userName}!</h1>
               <p className="seeker-sub-greeting">Find your next opportunity 👋</p>
             </div>
-            <IonButton fill="clear" className="seeker-notification-btn">
+            <IonButton fill="clear" className="seeker-notification-btn"
+              onClick={() => history.push('/notifications')}>
               <IonIcon icon={notificationsOutline} size="large" />
             </IonButton>
           </div>

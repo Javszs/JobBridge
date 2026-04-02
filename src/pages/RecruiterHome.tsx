@@ -151,7 +151,8 @@ const RecruiterHome: React.FC = () => {
               <h1 className="recruiter-greeting">Hi, {userName}!</h1>
               <p className="recruiter-sub-greeting">Recruit the best talent! 🔝</p>
             </div>
-            <IonButton fill="clear" className="recruiter-notification-btn">
+            <IonButton fill="clear" className="recruiter-notification-btn"
+              onClick={() => history.push('/notifications')}>
               <IonIcon icon={notificationsOutline} size="large" />
             </IonButton>
           </div>

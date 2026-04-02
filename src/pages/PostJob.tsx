@@ -168,11 +168,11 @@ const PostJob: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar color="primary">
+        <IonToolbar color="primary" style={{'color': 'white'}}>
           <IonButtons slot="start">
             <IonBackButton defaultHref="/tabs/home" />
           </IonButtons>
-          <IonTitle>Post New Job</IonTitle>
+          <IonTitle style={{'color': 'white'}}>Post New Job</IonTitle>
         </IonToolbar>
       </IonHeader>
 

@@ -201,11 +201,11 @@ const EditJob: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar color="primary">
+        <IonToolbar color="primary" style={{'color': 'white'}}>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/recruiter/home" />
+            <IonBackButton defaultHref="/home" />
           </IonButtons>
-          <IonTitle>Edit Job</IonTitle>
+          <IonTitle style={{'color': 'white'}}>Edit Job</IonTitle>
         </IonToolbar>
       </IonHeader>
 

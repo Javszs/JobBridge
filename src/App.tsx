@@ -22,6 +22,7 @@ import Contacts from './Tabs/contact';
 import Splash from './pages/splashScreen';  
 import EditProfile from './Tabs/EditProfile';
 import PostJob from './pages/PostJob';
+import Notification from './pages/Notifications';
 
 /* Core CSS ... (keep all your existing CSS imports exactly as they are) */
 import '@ionic/react/css/core.css';
@@ -79,6 +80,7 @@ const App: React.FC = () => {
           <Route path="/job/:jobId" component={Job} exact />
           <Route path="/messages" component={Messages} exact />
           <Route path="/message/:chatId" component={Message} exact />
+          <Route path="/notifications" component={Notification} exact />
 
           {/* Tabs Routes – only accessible when logged in */}
           <Route path="/tabs">
