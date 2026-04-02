@@ -20,10 +20,10 @@ import {
   IonAvatar,
 } from '@ionic/react';
 import { send, informationCircle} from 'ionicons/icons';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../../supabaseClient';
 import { useHistory } from 'react-router';
 import CryptoJS from 'crypto-js';
-import ChatAvatar from '../components/ChatAvatar';
+import ChatAvatar from '../../components/ChatAvatar';
 
 const Message: React.FC = () => {
   const history = useHistory();

@@ -18,7 +18,7 @@ import {
   IonBackButton
 } from '@ionic/react';
 import { useHistory } from 'react-router';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../../supabaseClient';
 import './Notifications.css';
 
 const Notification: React.FC = () => {

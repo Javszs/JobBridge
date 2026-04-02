@@ -24,7 +24,7 @@ import {
   IonIcon,
   useIonLoading
 } from '@ionic/react';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../../supabaseClient';
 import { personCircle, locateOutline } from 'ionicons/icons';
 import { Geolocation } from '@capacitor/geolocation';
 import './EditProfile.css';

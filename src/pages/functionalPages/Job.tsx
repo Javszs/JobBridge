@@ -13,8 +13,8 @@ import {
   IonBackButton,
 } from '@ionic/react';
 import { mapOutline, chatbubbleOutline, heartOutline, heart } from 'ionicons/icons';
-import { supabase } from '../supabaseClient';
-import MapComponent from '../components/MapComponent'; 
+import { supabase } from '../../supabaseClient';
+import MapComponent from '../../components/MapComponent'; 
 import { useHistory } from 'react-router-dom';
 import './Job.css';
 

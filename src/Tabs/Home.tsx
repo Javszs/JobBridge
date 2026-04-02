@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { supabase } from '../supabaseClient';
-import SeekerHome from '../pages/SeekerHome';
-import RecruiterHome from '../pages/RecruiterHome';
+import SeekerHome from '../pages/homes/SeekerHome';
+import RecruiterHome from '../pages/homes/RecruiterHome';
 import { IonPage, IonContent, IonSpinner, IonRefresher, IonRefresherContent, RefresherEventDetail } from '@ionic/react';
 
 const Home: React.FC = () => {

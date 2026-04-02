@@ -14,7 +14,7 @@ import {
 } from '@ionic/react';
 
 import './contact.css';
-import Jayve from '../assets/Jayve.jpg';
+import Jayve from '../../assets/Jayve.jpg';
 
 const Contacts: React.FC = () => {
   return (

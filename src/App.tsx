@@ -17,12 +17,12 @@ import Home from './Tabs/Home';
 import Jobs from './Tabs/Jobs';
 import Profile from './Tabs/Profile';
 import LoginPage from './pages/Login';
-import About from './Tabs/About';
-import Contacts from './Tabs/contact';
+import About from './pages/profile/About';
+import Contacts from './pages/profile/contact';
 import Splash from './pages/splashScreen';  
-import EditProfile from './Tabs/EditProfile';
-import PostJob from './pages/PostJob';
-import Notification from './pages/Notifications';
+import EditProfile from './pages/profile/EditProfile';
+import PostJob from './pages/Recruiter/PostJob';
+import Notification from './pages/functionalPages/Notifications';
 
 /* Core CSS ... (keep all your existing CSS imports exactly as they are) */
 import '@ionic/react/css/core.css';
@@ -37,10 +37,10 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 import '@ionic/react/css/palettes/dark.system.css';
 import './theme/variables.css';
-import EditJob from './pages/EditJob';
-import Job from './pages/Job';
+import EditJob from './pages/Recruiter/EditJob';
+import Job from './pages/functionalPages/Job';
 import Messages from './Tabs/Chats';
-import Message from './pages/Message';
+import Message from './pages/functionalPages/Message';
 
 
 setupIonicReact();

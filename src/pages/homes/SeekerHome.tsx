@@ -24,7 +24,7 @@ import {
   locationOutline, 
   timeOutline 
 } from 'ionicons/icons';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../../supabaseClient';
 import './SeekerHome.css';
 
 const SeekerHome: React.FC = () => {

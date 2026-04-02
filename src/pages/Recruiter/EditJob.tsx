@@ -23,7 +23,7 @@ import {
   useIonLoading,
 } from '@ionic/react';
 import { locate } from 'ionicons/icons';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../../supabaseClient';
 import { Geolocation } from '@capacitor/geolocation';
 
 const EditJob: React.FC = () => {

@@ -18,7 +18,7 @@ import {
   IonChip
 } from '@ionic/react';
 import { addOutline, notificationsOutline, createOutline, heart } from 'ionicons/icons';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../../supabaseClient';
 import './RecruiterHome.css';
 
 const RecruiterHome: React.FC = () => {
