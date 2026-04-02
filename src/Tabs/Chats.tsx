@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { 
   IonPage, IonHeader, IonToolbar, IonTitle, IonContent, 
   IonList, IonItem, IonAvatar, IonLabel, IonNote, IonRefresher, 
@@ -11,6 +11,7 @@ const Messages: React.FC = () => {
   const [conversations, setConversations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [archiveAlert, setArchiveAlert] = useState<{ isOpen: boolean; chatId: string; otherUserId: string }>({ isOpen: false, chatId: '', otherUserId: '' });
+  const [longPressActivated, setLongPressActivated] = useState(false);
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
 
   const fetchConversations = useCallback(async () => {
@@ -120,6 +121,7 @@ const Messages: React.FC = () => {
 
       await fetchConversations();  
       setArchiveAlert({ isOpen: false, chatId: '', otherUserId: '' });
+      setLongPressActivated(false);
 
     } catch (err) {
       console.error("Unexpected Archive Error:", err);
@@ -128,6 +130,7 @@ const Messages: React.FC = () => {
 
   const handleTouchStart = (chatId: string, otherUserId: string) => {
     longPressTimer.current = setTimeout(() => {
+      setLongPressActivated(true);
       setArchiveAlert({ isOpen: true, chatId, otherUserId });
     }, 600);
   };
@@ -137,6 +140,20 @@ const Messages: React.FC = () => {
       clearTimeout(longPressTimer.current);
       longPressTimer.current = null;
     }
+    // Reset long press state if it wasn't activated
+    if (!longPressActivated) {
+      setLongPressActivated(false);
+    }
+  };
+
+  const handleItemClick = (conv: any) => {
+    if (longPressActivated) {
+      // Long press was activated, don't navigate
+      setLongPressActivated(false);
+      return;
+    }
+    // Navigate to message page
+    window.location.href = `/message/${conv.otherUserId}?chat_id=${conv.chat_id}`;
   };
 
   return (
@@ -162,18 +179,18 @@ const Messages: React.FC = () => {
             color: '#010101', 
             fontSize: '1.2rem' 
           }}>
-            <p>No conversations yet.</p>
+            <p style={{color: 'white', fontSize: '1.3rem', marginTop: '100px'}}>No conversations yet.</p>
           </div>
         ) : (
           <IonList className='Chats-List'>
             {conversations.map((conv) => (
               <IonItem 
                 key={`${conv.otherUserId}-${conv.chat_id}`}
-                routerLink={`/message/${conv.otherUserId}?chat_id=${conv.chat_id}`}
                 button
                 detail={true}
                 className='Chat-Item'
                 lines='none'
+                onClick={() => handleItemClick(conv)}
                 onTouchStart={() => handleTouchStart(conv.chat_id, conv.otherUserId)}
                 onTouchEnd={handleTouchEnd}
               >
@@ -211,7 +228,10 @@ const Messages: React.FC = () => {
 
       <IonAlert
         isOpen={archiveAlert.isOpen}
-        onDidDismiss={() => setArchiveAlert({ isOpen: false, chatId: '', otherUserId: '' })}
+        onDidDismiss={() => {
+          setArchiveAlert({ isOpen: false, chatId: '', otherUserId: '' });
+          setLongPressActivated(false);
+        }}
         header="Archive Chat"
         message="Do you want to archive this conversation? It will be hidden from both yours and other's chat list."
         buttons={[

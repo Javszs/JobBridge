@@ -163,8 +163,8 @@ const Notification: React.FC = () => {
         </IonRefresher>
 
         {notifications.length === 0 ? (
-          <div style={{ textAlign: 'center', marginTop: '100px', color: '#64748b' }}>
-            <p>No new notifications</p>
+          <div style={{ textAlign: 'center', marginTop: '100px' }}>
+            <p style={{color: 'white', fontSize: '1.3rem' }}>No new notifications</p>
           </div>
         ) : (
           <IonList className='Chats-List'>

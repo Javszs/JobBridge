@@ -41,6 +41,7 @@ import EditJob from './pages/Recruiter/EditJob';
 import Job from './pages/functionalPages/Job';
 import Messages from './Tabs/Chats';
 import Message from './pages/functionalPages/Message';
+import AdminDashboard from './admin/AdminDashboard';
 
 
 setupIonicReact();
@@ -81,6 +82,7 @@ const App: React.FC = () => {
           <Route path="/messages" component={Messages} exact />
           <Route path="/message/:chatId" component={Message} exact />
           <Route path="/notifications" component={Notification} exact />
+          <Route path="/admin-dashboard" component={AdminDashboard} exact />
 
           {/* Tabs Routes – only accessible when logged in */}
           <Route path="/tabs">
