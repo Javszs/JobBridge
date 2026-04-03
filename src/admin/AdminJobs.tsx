@@ -112,16 +112,15 @@ const AdminJobs: React.FC = () => {
       await fetchJobs();
       event.detail.complete();
     };
-  
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar color="primary">
-          <IonButtons slot="start">
+          <IonButtons slot="start" style={{color: 'white'}}>
             <IonBackButton defaultHref="/admin-dashboard" />
           </IonButtons>
-          <IonTitle>Manage Jobs</IonTitle>
+          <IonTitle style={{color: 'white'}}>Manage Jobs</IonTitle>
         </IonToolbar>
       </IonHeader>
 
