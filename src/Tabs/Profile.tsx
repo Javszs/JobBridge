@@ -16,6 +16,7 @@ import {
   RefresherEventDetail,
   useIonViewWillEnter
 } from '@ionic/react';
+import { useHistory } from 'react-router';
 import { supabase } from '../supabaseClient';
 import { personCircle, person, help, create, logOut } from 'ionicons/icons';
 import './Profile.css';
@@ -25,6 +26,7 @@ interface ProfileProps {
 }
 
 const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
+  const history = useHistory();
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState({
     fullname: '',
@@ -47,6 +49,25 @@ const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
     await fetchProfile();
     event.detail.complete();
   };
+  
+  const handleLogout = async () => {
+      try {
+        await supabase.auth.signOut();
+        
+        // Clear app login state (important!)
+        localStorage.removeItem('isLoggedIn');
+        
+        // Call parent logout if passed
+        if (onLogout) onLogout();
+  
+        // Redirect to login
+        history.replace('/login');
+      } catch (err) {
+        console.error('Logout failed:', err);
+        // Fallback
+        history.replace('/login');
+      }
+    };
 
   const fetchProfile = async () => {
     try {
@@ -167,7 +188,7 @@ const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
             <IonLabel>About the Developers</IonLabel>
           </IonItem>
 
-          <IonItem button onClick={onLogout} lines="none" className="logout-item">
+          <IonItem button onClick={handleLogout} lines="none" className="logout-item">
             <IonIcon icon={logOut} slot="start" color="danger" />
             <IonLabel className="logout-text">Logout</IonLabel>
           </IonItem>
