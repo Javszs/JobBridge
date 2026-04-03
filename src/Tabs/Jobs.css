@@ -52,7 +52,7 @@
 .filters {
   display: flex;
   gap: 8px;
-  padding: 0 16px 16px;
+  padding: 0 16px 16px !important;
   overflow-x: auto;
   white-space: nowrap;
   --background: #000000;
@@ -187,7 +187,7 @@
   --background: #f1f5f9 !important;
   background-color: #cbcbcb !important;
   border-radius: 20px;
-  padding: 8px 12px;
+  padding: 8px 12px !important;
 }
 
 .filters-list {

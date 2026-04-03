@@ -25,7 +25,7 @@
 .Chats-label h2{
   font-size: 1.2rem !important;
   color: #1e3a8a !important;
-  font-weight: 600;
+  font-weight: 600 !important;
   margin: 2px !important;
   margin-left: 25px !important;
 }
