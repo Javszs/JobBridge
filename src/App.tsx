@@ -44,6 +44,7 @@ import Message from './pages/functionalPages/Message';
 import AdminDashboard from './admin/AdminDashboard';
 import AdminJobs from './admin/AdminJobs';
 import AdminUsers from './admin/AdminUsers';
+import ResetPassword from './pages/ResetPassword';
 
 
 setupIonicReact();
@@ -75,6 +76,7 @@ const App: React.FC = () => {
           </Route>
 
           <Route exact path="/Splash" component={Splash} />
+          <Route path="/reset-password" component={ResetPassword} exact />
           <Route path="/profile/edit" component={EditProfile} exact />
           <Route path="/profile/about" component={About} exact />
           <Route path="/profile/developers" component={Contacts} exact />
