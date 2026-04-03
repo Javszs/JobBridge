@@ -184,8 +184,8 @@
 }
 
 .filter-mainlist {
-  --background: #f1f5f9;
-  background-color: #cbcbcb;
+  --background: #f1f5f9 !important;
+  background-color: #cbcbcb !important;
   border-radius: 20px;
   padding: 8px 12px;
 }
@@ -195,7 +195,7 @@
   gap: 8px;
   overflow-x: auto;
   white-space: nowrap;
-  --background: #f1f5f9;
+  --background: #f1f5f9 !important;
   color: #1e2937;
   margin: 15px 8px;
   border-radius: 20px;

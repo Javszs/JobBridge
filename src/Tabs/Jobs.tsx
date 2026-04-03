@@ -250,16 +250,16 @@ const Jobs: React.FC = () => {
 
         {/* Basic Chips */}
         <div className="filters">
-          <IonChip color={activeFilter === 'all' ? "primary" : undefined} onClick={() => setActiveFilter('all')}>
+          <IonChip color={activeFilter === 'all' ? "primary" : undefined} onClick={() => setActiveFilter('all')} className={activeFilter === 'all' ? "active-chip" : ""}>
             All Jobs
           </IonChip>
-          <IonChip color={activeFilter === 'Full-time' ? "primary" : undefined} onClick={() => setActiveFilter('Full-time')}>
+          <IonChip color={activeFilter === 'Full-time' ? "primary" : undefined} onClick={() => setActiveFilter('Full-time')} className={activeFilter === 'Full-time' ? "active-chip" : ""}>
             Full-time
           </IonChip>
-          <IonChip color={activeFilter === 'Part-time' ? "primary" : undefined} onClick={() => setActiveFilter('Part-time')}>
+          <IonChip color={activeFilter === 'Part-time' ? "primary" : undefined} onClick={() => setActiveFilter('Part-time')} className={activeFilter === 'Part-time' ? "active-chip" : ""}>
             Part-time
           </IonChip>
-          <IonChip color={activeFilter === 'nearby' ? "primary" : undefined} onClick={() => setActiveFilter('nearby')}>
+          <IonChip color={activeFilter === 'nearby' ? "primary" : undefined} onClick={() => setActiveFilter('nearby')} className={activeFilter === 'nearby' ? "active-chip" : ""} >
             Nearby
           </IonChip>
         </div>

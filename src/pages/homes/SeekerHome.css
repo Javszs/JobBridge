@@ -43,7 +43,7 @@
   --background: rgb(249, 249, 249) !important;
   --border-radius: 12px;
   --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  color: #1e2937;
+  color: #1e2937 !important;
 }
 
 .seeker-filter-btn {

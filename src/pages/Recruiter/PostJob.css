@@ -1,6 +1,6 @@
 .post-job-container {
   padding: 16px;
-  background: #3168B9;
+  background: #3168B9 !important;
   min-height: 100%;
 }
 
@@ -12,7 +12,7 @@
 }
 
 .post-job-form {
-  background-color: #ffffff;
+  background-color: #ffffff !important;
   margin-bottom: 12px;
 }
 
@@ -34,19 +34,19 @@
   --border-radius: 12px;
   --padding-start: 16px;
   --padding-end: 16px;
-  --color: #000000;
-  color: #000000
+  --color: #000000 !important;
+  color: #000000 !important;
 }
 
 .post-job-form ion-input:focus-within,
 .post-job-form ion-textarea:focus-within,
 .post-job-form ion-select:focus-within {
-  border-color: #3b82f6;
+  border-color: #3b82f6 !important;
 }
 
 .post-job-btn {
-  --background: #3b82f6;
-  --color: white;
+  --background: #3b82f6 !important;
+  --color: white !important;
   height: 54px;
   font-size: 1.1rem;
   font-weight: 600;
