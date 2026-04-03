@@ -1,6 +1,6 @@
 .Chats-List {
   margin-top: 16px;
-  background-color: #3168B9;
+  background-color: #3168B9 !important;
 }
 
 .Chat-Title {
