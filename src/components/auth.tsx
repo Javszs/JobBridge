@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   IonContent,
   IonInput,
@@ -17,7 +17,7 @@ interface AuthProps {
 }
 
 const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
-  const [view, setView] = useState<'login' | 'signup' | 'verify' | 'forgot-password'>('login');
+  const [view, setView] = useState<'login' | 'signup' | 'verify' | 'forgot-password' | 'google-signup'>('login');
 
   // Login fields
   const [email, setEmail] = useState('');
@@ -28,15 +28,17 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);   // ← Fixed: Added this
+  const [selectedRole, setSelectedRole] = useState<'seeker' | 'recruiter' | null>(null);
 
   const [otpToken, setOtpToken] = useState('');
+  const [googleAuthEmail, setGoogleAuthEmail] = useState('');
 
   const [toastMsg, setToastMsg] = useState('');
   const [toastColor, setToastColor] = useState<'success' | 'danger'>('success');
   const [showToast, setShowToast] = useState(false);
 
-  // ─── Login ─────────────────────────────────────────────────────────
+  // ─── Login with Email ───────────────────────────────────────────────
   const handleLogin = async () => {
     if (!email || !password) return showError('Please enter email and password');
 
@@ -47,7 +49,7 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
     onLogin?.();
   };
 
-  // ─── Google Login ──────────────────────────────────────────────────
+  // ─── Login with Google ──────────────────────────────────────────────
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -59,7 +61,37 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
     if (error) showError(error.message);
   };
 
-  // ─── Forgot Password ───────────────────────────────────────────────
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        // Extract user info from Google OAuth
+        const userMeta = session.user.user_metadata;
+        const fullName = userMeta?.full_name || userMeta?.name || '';
+        const nameParts = fullName.split(' ');
+        const first = nameParts[0] || '';
+        const last = nameParts.slice(1).join(' ') || '';
+
+        // Check if user has a role (existing user)
+        const userRole = userMeta?.role;
+        
+        if (userRole) {
+          // Existing user with role - proceed with login
+          showSuccess('Login successful!');
+          onLogin?.();
+        } else {
+          // New user from Google OAuth - show role selection
+          setFirstName(first);
+          setLastName(last);
+          setGoogleAuthEmail(session.user.email || '');
+          setView('google-signup');
+        }
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [onLogin]);
+
+  // ─── Forgot Password ────────────────────────────────────────────────
   const handleForgotPassword = async () => {
     if (!email) return showError('Please enter your email');
 
@@ -69,17 +101,18 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
 
     if (error) showError(error.message);
     else {
-      showSuccess('Password reset link sent! Check your email.');
+      showSuccess('Password reset link sent to your email!');
       setView('login');
     }
   };
 
-  // ─── Signup ────────────────────────────────────────────────────────
+  // ─── Signup ─────────────────────────────────────────────────────────
   const handleSignUp = async () => {
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
       return showError('Please fill all required fields');
     }
     if (password !== confirmPassword) return showError('Passwords do not match');
+    if (!selectedRole) return showError('Please choose your role');
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -88,6 +121,7 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
         data: {
           firstname: firstName.trim(),
           lastname: lastName.trim(),
+          role: selectedRole,
         },
       },
     });
@@ -98,7 +132,7 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
     setView('verify');
   };
 
-  // ─── Verify OTP ────────────────────────────────────────────────────
+  // ─── Verify OTP ─────────────────────────────────────────────────────
   const handleVerifyOTP = async () => {
     const { error } = await supabase.auth.verifyOtp({
       email,
@@ -111,8 +145,24 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
     showSuccess('Email confirmed successfully!');
     onLogin?.();
   };
+  // ─── Complete Google Signup ─────────────────────────────────────────
+  const handleCompleteGoogleSignup = async () => {
+    if (!selectedRole) return showError('Please select your role');
 
-  // ─── Helpers ───────────────────────────────────────────────────────
+    const { data: { user }, error: updateError } = await supabase.auth.updateUser({
+      data: {
+        firstname: firstName.trim(),
+        lastname: lastName.trim(),
+        role: selectedRole,
+      },
+    });
+
+    if (updateError) return showError(updateError.message);
+
+    showSuccess('Profile completed successfully!');
+    onLogin?.();
+  };
+  // ─── Helpers ────────────────────────────────────────────────────────
   const showError = (msg: string) => {
     setToastMsg(msg);
     setToastColor('danger');
@@ -131,10 +181,11 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
     setFirstName('');
     setLastName('');
     setConfirmPassword('');
+    setSelectedRole(null);
     setOtpToken('');
   };
 
-  // ─── Panels ────────────────────────────────────────────────────────
+  // ─── Render Panels ──────────────────────────────────────────────────
   const loginPanel = (
     <div className="auth-panel">
       <div className="auth-panel-header">
@@ -168,28 +219,31 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
       <IonNote 
         className="auth-forgot-link" 
         onClick={() => setView('forgot-password')}
-        style={{ cursor: 'pointer' }}
+        style={{ cursor: 'pointer', marginTop: '20px' }}
       >
         Forgot Password?
       </IonNote>
 
-      <IonButton expand="block" className="auth-btn" onClick={handleLogin}>
+      <IonButton expand="block" className="auth-btn" onClick={handleLogin} style={{ cursor: 'pointer', marginTop: '20px' }}>
         Login
       </IonButton>
 
-      <div className="auth-divider"><span>OR</span></div>
+      <div className="auth-divider" style={{ cursor: 'pointer', marginTop: '10px' }}><span>OR</span></div>
 
       <IonButton 
         expand="block" 
         fill="outline" 
         className="auth-google-btn"
         onClick={handleGoogleLogin}
+        style={{ cursor: 'pointer', marginTop: '10px' }}
       >
         <IonIcon icon={logoGoogle} slot="start" />
         Continue with Google
       </IonButton>
 
-      <p className="auth-signup-prompt" onClick={() => {
+      <p className="auth-signup-prompt" 
+      style={{ cursor: 'pointer', marginTop: '20px' }}
+      onClick={() => {
         setView('signup');
         resetForms();
       }}>
@@ -228,7 +282,6 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
         </IonButton>
       </IonItem>
 
-      {/* Confirm Password with Eye Toggle */}
       <IonItem className="auth-input-item" lines="none">
         <IonInput
           type={showConfirmPassword ? 'text' : 'password'}
@@ -245,6 +298,21 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
         </IonButton>
       </IonItem>
 
+      <div className="auth-role-selection">
+        <IonButton
+          fill={selectedRole === 'seeker' ? 'solid' : 'outline'}
+          onClick={() => setSelectedRole('seeker')}
+        >
+          Job Seeker
+        </IonButton>
+        <IonButton
+          fill={selectedRole === 'recruiter' ? 'solid' : 'outline'}
+          onClick={() => setSelectedRole('recruiter')}
+        >
+          Recruiter
+        </IonButton>
+      </div>
+
       <IonButton expand="block" className="auth-btn auth-signup-btn" onClick={handleSignUp}>
         Create Account
       </IonButton>
@@ -257,6 +325,8 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
       </p>
     </div>
   );
+
+  // ... (forgotPasswordPanel and verifyPanel remain the same as before)
 
   const forgotPasswordPanel = (
     <div className="auth-panel">
@@ -310,6 +380,59 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
     </div>
   );
 
+  const googleSignupPanel = (
+    <div className="auth-panel">
+      <div className="auth-panel-header">
+        <h2 className="auth-panel-title">Complete Your Profile</h2>
+        <p>Thanks for signing up with Google!</p>
+      </div>
+
+      <IonItem className="auth-input-item" lines="none">
+        <IonInput 
+          placeholder="First Name" 
+          value={firstName} 
+          onIonInput={e => setFirstName(e.detail.value ?? '')} 
+        />
+      </IonItem>
+
+      <IonItem className="auth-input-item" lines="none">
+        <IonInput 
+          placeholder="Last Name" 
+          value={lastName} 
+          onIonInput={e => setLastName(e.detail.value ?? '')} 
+        />
+      </IonItem>
+
+      <div className="auth-role-selection">
+        <IonButton
+          fill={selectedRole === 'seeker' ? 'solid' : 'outline'}
+          onClick={() => setSelectedRole('seeker')}
+        >
+          Job Seeker
+        </IonButton>
+        <IonButton
+          fill={selectedRole === 'recruiter' ? 'solid' : 'outline'}
+          onClick={() => setSelectedRole('recruiter')}
+        >
+          Recruiter
+        </IonButton>
+      </div>
+
+      <IonButton expand="block" className="auth-btn" onClick={handleCompleteGoogleSignup}>
+        Complete Signup
+      </IonButton>
+
+      <p className="auth-switch-link" onClick={() => {
+        setView('login');
+        setFirstName('');
+        setLastName('');
+        setSelectedRole(null);
+      }}>
+        ← Back to Login
+      </p>
+    </div>
+  );
+
   return (
     <IonContent fullscreen className="auth-gradient-bg" scrollX={false} scrollY={false}>
       <div className="auth-container">
@@ -317,6 +440,7 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
         {view === 'signup' && signupPanel}
         {view === 'forgot-password' && forgotPasswordPanel}
         {view === 'verify' && verifyPanel}
+        {view === 'google-signup' && googleSignupPanel}
       </div>
 
       <IonToast
