@@ -90,8 +90,8 @@ const ResetPassword: React.FC = () => {
       <IonContent fullscreen className="ion-padding">
         <div style={{ maxWidth: '400px', margin: '40px auto 0' }}>
           <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-            <h1 style={{ fontSize: '1.8rem', marginBottom: '8px' }}>Create New Password</h1>
-            <p style={{ color: '#666' }}>Your new password must be different from previous ones.</p>
+            <h1 style={{ fontSize: '1.8rem', marginBottom: '8px', color: '#ffffff' }}>Create New Password</h1>
+            <p style={{ color: '#ffffff' }}>Your new password must be different from previous ones.</p>
           </div>
 
           <IonItem lines="none" className="auth-input-item">

@@ -8,7 +8,7 @@ import {
   IonItem,
   IonNote,
 } from '@ionic/react';
-import { eye, eyeOff, mailOutline, lockClosedOutline, arrowBack } from 'ionicons/icons';
+import { eye, eyeOff, mailOutline, lockClosedOutline, logoGoogle } from 'ionicons/icons';
 import { supabase } from '../supabaseClient';
 
 interface AuthProps {
@@ -17,68 +17,77 @@ interface AuthProps {
 }
 
 const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
-  const [view, setView] = useState<'seeker-login' | 'recruiter-login' | 'signup' | 'verify' | 'forgot-password'>('seeker-login');
-  const [otpToken, setOtpToken] = useState('');
+  const [view, setView] = useState<'login' | 'signup' | 'verify' | 'forgot-password'>('login');
 
-  // Shared fields
+  // Login fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Signup fields
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [selectedRole, setSelectedRole] = useState<'seeker' | 'recruiter' | null>(null);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [otpToken, setOtpToken] = useState('');
 
   const [toastMsg, setToastMsg] = useState('');
   const [toastColor, setToastColor] = useState<'success' | 'danger'>('success');
   const [showToast, setShowToast] = useState(false);
 
-  // ─── Login Handlers ────────────────────────────────────────────────
-  const handleLogin = async (role: 'seeker' | 'recruiter') => {
+  // ─── Login ─────────────────────────────────────────────────────────
+  const handleLogin = async () => {
     if (!email || !password) return showError('Please enter email and password');
 
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return showError(error.message);
 
-    showSuccess(`Logged in as ${role === 'seeker' ? 'Job Seeker' : 'Recruiter'}`);
+    showSuccess('Login successful!');
     onLogin?.();
+  };
+
+  // ─── Google Login ──────────────────────────────────────────────────
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/tabs/home`,
+      },
+    });
+
+    if (error) showError(error.message);
   };
 
   // ─── Forgot Password ───────────────────────────────────────────────
   const handleForgotPassword = async () => {
-    if (!email) return showError('Please enter your email address');
+    if (!email) return showError('Please enter your email');
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
 
-    if (error) {
-      showError(error.message);
-    } else {
-      showSuccess('Password reset link sent to your email!');
-      setView('seeker-login'); // Go back to login after sending
+    if (error) showError(error.message);
+    else {
+      showSuccess('Password reset link sent! Check your email.');
+      setView('login');
     }
   };
 
-  // ─── Signup Handler ────────────────────────────────────────────────
+  // ─── Signup ────────────────────────────────────────────────────────
   const handleSignUp = async () => {
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
       return showError('Please fill all required fields');
     }
     if (password !== confirmPassword) return showError('Passwords do not match');
-    if (!selectedRole) return showError('Please choose your role');
 
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           firstname: firstName.trim(),
           lastname: lastName.trim(),
-          role: selectedRole,
         },
       },
     });
@@ -89,7 +98,7 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
     setView('verify');
   };
 
-  // ─── Verification Handler ──────────────────────────────────────────
+  // ─── Verify OTP ────────────────────────────────────────────────────
   const handleVerifyOTP = async () => {
     const { error } = await supabase.auth.verifyOtp({
       email,
@@ -116,59 +125,21 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
     setShowToast(true);
   };
 
-  const resetLoginForm = () => {
+  const resetForms = () => {
     setEmail('');
     setPassword('');
-  };
-
-  const resetSignupForm = () => {
     setFirstName('');
     setLastName('');
-    setEmail('');
-    setPassword('');
     setConfirmPassword('');
-    setSelectedRole(null);
+    setOtpToken('');
   };
 
-  // ─── Render Logic ──────────────────────────────────────────────────
-  const forgotPasswordPanel = (
-    <div className="auth-panel">
-      <div className="auth-panel-header">
-        <h2 className="auth-panel-title">Forgot Password?</h2>
-        <p>Enter your email and we'll send you a reset link.</p>
-      </div>
-
-      <IonItem className="auth-input-item" lines="none">
-        <IonIcon icon={mailOutline} slot="start" />
-        <IonInput
-          type="email"
-          placeholder="Email address"
-          value={email}
-          onIonInput={e => setEmail(e.detail.value ?? '')}
-        />
-      </IonItem>
-
-      <IonButton expand="block" className="auth-btn" onClick={handleForgotPassword}>
-        Send Reset Link
-      </IonButton>
-
-      <p 
-        className="auth-switch-link" 
-        onClick={() => {
-          setView('seeker-login');
-          resetLoginForm();
-        }}
-      >
-        ← Back to Login
-      </p>
-    </div>
-  );
-
-  const loginPanel = (role: 'seeker' | 'recruiter') => (
+  // ─── Panels ────────────────────────────────────────────────────────
+  const loginPanel = (
     <div className="auth-panel">
       <div className="auth-panel-header">
         <h2 className="auth-panel-title">Welcome Back!</h2>
-        <p>Sign in as a {role === 'seeker' ? 'Job Seeker' : 'Recruiter'}</p>
+        <p>Sign in to continue</p>
       </div>
 
       <IonItem className="auth-input-item" lines="none">
@@ -194,7 +165,6 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
         </IonButton>
       </IonItem>
 
-      {/* Forgot Password Link */}
       <IonNote 
         className="auth-forgot-link" 
         onClick={() => setView('forgot-password')}
@@ -203,78 +173,114 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
         Forgot Password?
       </IonNote>
 
-      <IonButton expand="block" className="auth-btn" onClick={() => handleLogin(role)}>
+      <IonButton expand="block" className="auth-btn" onClick={handleLogin}>
         Login
       </IonButton>
 
       <div className="auth-divider"><span>OR</span></div>
-      <IonButton expand="block" fill="outline" className="auth-google-btn">
-        Login with Google
-      </IonButton>
 
-      <p className="auth-switch-link" onClick={() => {
-        setView(role === 'seeker' ? 'recruiter-login' : 'seeker-login');
-        resetLoginForm();
-      }}>
-        ← Change Role
-      </p>
+      <IonButton 
+        expand="block" 
+        fill="outline" 
+        className="auth-google-btn"
+        onClick={handleGoogleLogin}
+      >
+        <IonIcon icon={logoGoogle} slot="start" />
+        Continue with Google
+      </IonButton>
 
       <p className="auth-signup-prompt" onClick={() => {
         setView('signup');
-        resetSignupForm();
+        resetForms();
       }}>
-        Don't have an account? <strong>Signup!</strong>
+        Don't have an account? <strong>Sign up</strong>
       </p>
     </div>
   );
 
   const signupPanel = (
     <div className="auth-panel">
-      {/* ... your existing signup panel ... */}
-      {/* (keeping it the same as you had) */}
       <div className="auth-panel-header">
-        <h2 className="auth-panel-title">Let's get started!</h2>
+        <h2 className="auth-panel-title">Create Account</h2>
       </div>
+
       <IonItem className="auth-input-item" lines="none">
         <IonInput placeholder="First Name" value={firstName} onIonInput={e => setFirstName(e.detail.value ?? '')} />
       </IonItem>
+
       <IonItem className="auth-input-item" lines="none">
         <IonInput placeholder="Last Name" value={lastName} onIonInput={e => setLastName(e.detail.value ?? '')} />
       </IonItem>
+
       <IonItem className="auth-input-item" lines="none">
         <IonInput type="email" placeholder="Email" value={email} onIonInput={e => setEmail(e.detail.value ?? '')} />
       </IonItem>
+
       <IonItem className="auth-input-item" lines="none">
-        <IonInput type={showPassword ? 'text' : 'password'} placeholder="Password" value={password} onIonInput={e => setPassword(e.detail.value ?? '')} />
+        <IonInput 
+          type={showPassword ? 'text' : 'password'} 
+          placeholder="Password" 
+          value={password} 
+          onIonInput={e => setPassword(e.detail.value ?? '')} 
+        />
         <IonButton fill="clear" slot="end" onClick={() => setShowPassword(!showPassword)}>
           <IonIcon icon={showPassword ? eye : eyeOff} />
         </IonButton>
       </IonItem>
+
+      {/* Confirm Password with Eye Toggle */}
       <IonItem className="auth-input-item" lines="none">
-        <IonInput type={showConfirmPassword ? 'text' : 'password'} placeholder="Confirm Password" value={confirmPassword} onIonInput={e => setConfirmPassword(e.detail.value ?? '')} />
-        <IonButton fill="clear" slot="end" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+        <IonInput
+          type={showConfirmPassword ? 'text' : 'password'}
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onIonInput={e => setConfirmPassword(e.detail.value ?? '')}
+        />
+        <IonButton 
+          fill="clear" 
+          slot="end" 
+          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+        >
           <IonIcon icon={showConfirmPassword ? eye : eyeOff} />
         </IonButton>
       </IonItem>
 
-      <div className="auth-role-selection">
-        <IonButton fill={selectedRole === 'seeker' ? 'solid' : 'outline'} onClick={() => setSelectedRole('seeker')}>
-          Job Seeker
-        </IonButton>
-        <IonButton fill={selectedRole === 'recruiter' ? 'solid' : 'outline'} onClick={() => setSelectedRole('recruiter')}>
-          Recruiter
-        </IonButton>
-      </div>
-
       <IonButton expand="block" className="auth-btn auth-signup-btn" onClick={handleSignUp}>
-        Signup
+        Create Account
       </IonButton>
 
       <p className="auth-signup-prompt" onClick={() => {
-        setView('seeker-login');
-        resetLoginForm();
+        setView('login');
+        resetForms();
       }}>
         Already have an account? <strong>Login</strong>
+      </p>
+    </div>
+  );
+
+  const forgotPasswordPanel = (
+    <div className="auth-panel">
+      <div className="auth-panel-header">
+        <h2 className="auth-panel-title">Forgot Password?</h2>
+        <p>We'll send a reset link to your email.</p>
+      </div>
+
+      <IonItem className="auth-input-item" lines="none">
+        <IonIcon icon={mailOutline} slot="start" />
+        <IonInput
+          type="email"
+          placeholder="Email address"
+          value={email}
+          onIonInput={e => setEmail(e.detail.value ?? '')}
+        />
+      </IonItem>
+
+      <IonButton expand="block" className="auth-btn" onClick={handleForgotPassword}>
+        Send Reset Link
+      </IonButton>
+
+      <p className="auth-switch-link" onClick={() => setView('login')}>
+        ← Back to Login
       </p>
     </div>
   );
@@ -282,7 +288,7 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
   const verifyPanel = (
     <div className="auth-panel">
       <div className="auth-panel-header">
-        <h2 className="auth-panel-title">Verify Your Email</h2>
+        <h2 className="auth-panel-title">Verify Email</h2>
         <p>Enter the 6-digit code sent to <strong>{email}</strong></p>
       </div>
       <IonItem className="auth-input-item" lines="none">
@@ -307,11 +313,10 @@ const Auth: React.FC<AuthProps> = ({ onSignUpClick, onLogin }) => {
   return (
     <IonContent fullscreen className="auth-gradient-bg" scrollX={false} scrollY={false}>
       <div className="auth-container">
+        {view === 'login' && loginPanel}
+        {view === 'signup' && signupPanel}
         {view === 'forgot-password' && forgotPasswordPanel}
         {view === 'verify' && verifyPanel}
-        {view === 'seeker-login' && loginPanel('seeker')}
-        {view === 'recruiter-login' && loginPanel('recruiter')}
-        {view === 'signup' && signupPanel}
       </div>
 
       <IonToast
