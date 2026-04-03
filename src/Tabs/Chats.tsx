@@ -208,10 +208,10 @@ const Messages: React.FC = () => {
 
                   {conv.jobPosition && (
                     <p style={{ 
-                      color: '#3168b9', 
-                      fontWeight: 600, 
-                      margin: '2px 0 4px',
-                      fontSize: '0.95rem'
+                      color: '#3168b9 !important', 
+                      fontWeight: '600 !important', 
+                      margin: '2px 0 4px !important',
+                      fontSize: '0.95rem !important'
                     }}>
                       For Position: {conv.jobPosition}
                     </p>

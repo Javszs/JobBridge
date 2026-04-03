@@ -1,5 +1,5 @@
 .Chats-List {
-  margin-top: 16px;
+  margin-top: 16px !important;
   background-color: #3168B9 !important;
 }
 
@@ -10,14 +10,14 @@
 
 .Chat-Item {
   --background: white !important;
-  --border-radius: 20px;
-  margin-bottom: 8px;
+  --border-radius: 20px !important;
+  margin-bottom: 8px !important;
   padding : 5px 20px !important;
    --min-height: 100px;
 }
 
 .Chats-label p{
-  font-size: 1rem;
+  font-size: 1rem !important;
   margin: 5px !important;
   margin-left: 25px !important;
 }
