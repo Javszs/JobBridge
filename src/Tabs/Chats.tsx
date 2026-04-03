@@ -207,12 +207,12 @@ const Messages: React.FC = () => {
                   <h2>{conv.name}</h2>
 
                   {conv.jobPosition && (
-                    <p className='Chat-p'>
+                    <p className='Chat-p' style={{color: '#3168b9'}}>
                       For Position: {conv.jobPosition}
                     </p>
                   )}
 
-                  <p style={{ color: '#666' }}>{conv.lastMsg}</p>
+                  <p style={{ color: '#666' }}  className='Chat-p'>{conv.lastMsg}</p>
                 </IonLabel>
                 <IonNote slot="end" style={{ fontSize: '0.8rem' }}>{conv.date}</IonNote>
               </IonItem>
