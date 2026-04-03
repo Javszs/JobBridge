@@ -159,7 +159,6 @@ const AdminUsers: React.FC = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <IonButton 
                     color={user.banned ? "success" : "warning"} 
-                    fill="outline" 
                     size="small"
                     onClick={() => openAction(user.id, 'ban')}
                   >
