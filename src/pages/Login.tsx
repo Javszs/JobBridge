@@ -37,7 +37,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </div>
 
           {/* Auth Componentss */}
-          <Auth onSignUpClick={handleSignUpClick} onLogin={onLogin} />
+          <Auth  onLogin={onLogin} />
 
           {/* Sign Up Text */}
           <div className="signup-text">
