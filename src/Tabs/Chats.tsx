@@ -212,7 +212,7 @@ const Messages: React.FC = () => {
                     </p>
                   )}
 
-                  <p style={{ color: '#666', fontSize: '0.65rem !important' }}>{conv.lastMsg}</p>
+                  <p style={{ color: '#666' }}>{conv.lastMsg}</p>
                 </IonLabel>
                 <IonNote slot="end" style={{ fontSize: '0.8rem' }}>{conv.date}</IonNote>
               </IonItem>
