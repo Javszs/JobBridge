@@ -14,7 +14,9 @@ import {
   IonLabel,
   IonIcon,
   IonSpinner,
-  IonButton,
+  IonRefresher,
+  IonRefresherContent,
+  RefresherEventDetail,
 } from '@ionic/react';
 import { 
   people, 
@@ -117,6 +119,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     }
   };
 
+  const handleRefresh = async (event: CustomEvent<RefresherEventDetail>) => {
+    await fetchDashboardStats();
+    event.detail.complete();
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -130,8 +137,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: '100px' }}>
             <IonSpinner name="crescent" />
           </div>
+          
         ) : (
           <>
+            <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+                <IonRefresherContent />
+            </IonRefresher>
             <h2 style={{ margin: '10px 0 20px', color: '#ffffff', textAlign: 'center', fontSize: '2rem' }}>Overview</h2>
 
             {/* Stats Cards */}
@@ -198,7 +209,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                     button 
                     onClick={handleLogout} 
                     lines="none" 
-                    style={{ marginTop: '12px' }}
                   >
                     <IonIcon icon={logOut} slot="start" color="danger" />
                     <IonLabel style={{fontWeight: 'bold' }}>
