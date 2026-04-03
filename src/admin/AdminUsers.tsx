@@ -148,10 +148,10 @@ const AdminUsers: React.FC = () => {
                 <IonLabel className="Chats-label">
                   <h2>{user.firstname} {user.lastname}</h2>
                   <p>{user.email}</p>
-                  <p>
+                  <p style={{fontWeight: 'bold'}}>
                     Role: <strong>{user.role || 'seeker'}</strong>
                     {user.banned && (
-                      <IonBadge color="danger" style={{ marginLeft: '8px' }}>BANNED</IonBadge>
+                      <span style={{ color: 'red', marginLeft: '8px' }}>BANNED</span>
                     )}
                   </p>
                 </IonLabel>
