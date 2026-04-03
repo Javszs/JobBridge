@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import {
   IonApp,
@@ -45,19 +45,65 @@ import AdminDashboard from './admin/AdminDashboard';
 import AdminJobs from './admin/AdminJobs';
 import AdminUsers from './admin/AdminUsers';
 import ResetPassword from './pages/ResetPassword';
+import { supabase } from './supabaseClient';
 
 
 setupIonicReact();
 
 const App: React.FC = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return localStorage.getItem('isLoggedIn') === 'true';
-  });
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check for existing session on app load
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setIsLoggedIn(true);
+        localStorage.setItem('isLoggedIn', 'true');
+      } else {
+        setIsLoggedIn(false);
+        localStorage.removeItem('isLoggedIn');
+      }
+      setIsLoading(false);
+    };
+
+    checkSession();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        setIsLoggedIn(true);
+        localStorage.setItem('isLoggedIn', 'true');
+      } else if (event === 'SIGNED_OUT') {
+        setIsLoggedIn(false);
+        localStorage.removeItem('isLoggedIn');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     localStorage.removeItem('isLoggedIn');
   };
+
+  // Show loading while checking auth state
+  if (isLoading) {
+    return (
+      <IonApp>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          height: '100vh' 
+        }}>
+          Loading...
+        </div>
+      </IonApp>
+    );
+  }
 
   return (
     <IonApp>
@@ -70,7 +116,6 @@ const App: React.FC = () => {
             ) : (
               <LoginPage onLogin={() => {
                 setIsLoggedIn(true);
-                localStorage.setItem('isLoggedIn', 'true');
               }} />
             )}
           </Route>
