@@ -1,0 +1,44 @@
+.admin-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.admin-list {
+  width: 90%;
+  margin: 40px auto !important;
+  align-items: center;
+  border-radius: 16px;
+  overflow: hidden;
+  background: hsl(205, 38%, 77%) !important;
+  display: block;
+}
+
+.admin-list ion-item {
+  width: 90%;
+  margin: 0 auto;
+  overflow: hidden;
+  --background: hsl(205, 38%, 77%) !important;
+  --color: #333333 !important;
+  --inner-padding-end: 16px;
+  --padding-start: 16px !important;
+}
+
+.admin-list ion-item ion-icon {
+  background-color: #5a92e6 !important;
+  padding: 7px;
+  color: rgb(0, 0, 0);
+  border-radius: 25% !important;
+}
+
+.logout-item {
+  --background: #ffe9e9;
+}
+
+.logout-text {
+  color: #e53935;
+  font-weight: 600;
+}

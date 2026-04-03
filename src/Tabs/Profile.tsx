@@ -90,6 +90,12 @@ const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
   if (loading) {
       return (
         <IonPage>
+          <IonHeader>
+            <IonToolbar  color="primary">
+              <IonTitle className='Chat-Title'>My Profile</IonTitle>
+            </IonToolbar>
+          </IonHeader>
+
           <IonContent fullscreen className="ion-padding">
             <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
               <IonRefresherContent></IonRefresherContent>
@@ -110,7 +116,7 @@ const Profile: React.FC<ProfileProps> = ({ onLogout }) => {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent fullscreen className="ion-padding" style={{ '--background': '#3168B9' }}>
+      <IonContent fullscreen className="ion-padding">
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
           <IonRefresherContent></IonRefresherContent>
         </IonRefresher>

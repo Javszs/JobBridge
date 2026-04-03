@@ -12,20 +12,24 @@ import {
   IonList,
   IonItem,
   IonLabel,
-  IonButton,
   IonIcon,
   IonSpinner,
+  IonButton,
 } from '@ionic/react';
 import { 
-  peopleOutline, 
-  briefcaseOutline, 
-  analyticsOutline, 
-  logOutOutline 
+  people, 
+  briefcase, 
+  logOut
 } from 'ionicons/icons';
 import { supabase } from '../supabaseClient';
 import { useHistory } from 'react-router';
+import './AdminDashboard.css';
 
-const AdminDashboard: React.FC = () => {
+interface AdminDashboardProps {
+  onLogout?: () => void;   // Optional: to match Profile style
+}
+
+const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   const history = useHistory();
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -35,46 +39,44 @@ const AdminDashboard: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  // Add this at the top of AdminDashboard.tsx
-    useEffect(() => {
+  // Admin Protection
+  useEffect(() => {
     const checkAdmin = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
         history.replace('/login');
         return;
-        }
+      }
 
-        const { data } = await supabase
+      const { data } = await supabase
         .from('users')
         .select('role')
         .eq('id', user.id)
         .single();
 
-        if (data?.role?.toLowerCase() !== 'admin') {
-        history.replace('/tabs/home');   // Redirect non-admins
-        }
+      if (data?.role?.toLowerCase() !== 'admin') {
+        history.replace('/tabs/home');
+      }
     };
 
     checkAdmin();
-    }, [history]);
+  }, [history]);
 
+  // Fetch Stats
   useEffect(() => {
     fetchDashboardStats();
   }, []);
 
   const fetchDashboardStats = async () => {
     try {
-      // Total Users
       const { count: totalUsers } = await supabase
         .from('users')
         .select('*', { count: 'exact', head: true });
 
-      // Total Jobs
       const { count: totalJobs } = await supabase
         .from('jobs')
         .select('*', { count: 'exact', head: true });
 
-      // Recruiters & Seekers
       const { data: roleData } = await supabase
         .from('users')
         .select('role');
@@ -95,19 +97,31 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  // Logout - Based on your App.tsx + Profile.tsx pattern
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    history.replace('/login');
+    try {
+      await supabase.auth.signOut();
+      
+      // Clear app login state (important!)
+      localStorage.removeItem('isLoggedIn');
+      
+      // Call parent logout if passed
+      if (onLogout) onLogout();
+
+      // Redirect to login
+      history.replace('/login');
+    } catch (err) {
+      console.error('Logout failed:', err);
+      // Fallback
+      history.replace('/login');
+    }
   };
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar color="primary">
-          <IonTitle>Admin Dashboard</IonTitle>
-          <IonButton slot="end" fill="clear" onClick={handleLogout}>
-            <IonIcon icon={logOutOutline} />
-          </IonButton>
+          <IonTitle className='Chat-Title'>Admin Dashboard</IonTitle>
         </IonToolbar>
       </IonHeader>
 
@@ -118,11 +132,11 @@ const AdminDashboard: React.FC = () => {
           </div>
         ) : (
           <>
-            <h2 style={{ margin: '0 0 20px 10px', color: '#333' }}>Overview</h2>
+            <h2 style={{ margin: '10px 0 20px', color: '#ffffff', textAlign: 'center', fontSize: '2rem' }}>Overview</h2>
 
             {/* Stats Cards */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <IonCard>
+              <IonCard className='admin-card'>
                 <IonCardHeader>
                   <IonCardTitle style={{ fontSize: '1.8rem', color: '#3168b9' }}>
                     {stats.totalUsers}
@@ -133,7 +147,7 @@ const AdminDashboard: React.FC = () => {
                 </IonCardContent>
               </IonCard>
 
-              <IonCard>
+              <IonCard className='admin-card'>
                 <IonCardHeader>
                   <IonCardTitle style={{ fontSize: '1.8rem', color: '#3168b9' }}>
                     {stats.totalJobs}
@@ -144,7 +158,7 @@ const AdminDashboard: React.FC = () => {
                 </IonCardContent>
               </IonCard>
 
-              <IonCard>
+              <IonCard className='admin-card'>
                 <IonCardHeader>
                   <IonCardTitle style={{ fontSize: '1.8rem', color: '#3168b9' }}>
                     {stats.totalRecruiters}
@@ -155,7 +169,7 @@ const AdminDashboard: React.FC = () => {
                 </IonCardContent>
               </IonCard>
 
-              <IonCard>
+              <IonCard className='admin-card'>
                 <IonCardHeader>
                   <IonCardTitle style={{ fontSize: '1.8rem', color: '#3168b9' }}>
                     {stats.totalSeekers}
@@ -168,29 +182,30 @@ const AdminDashboard: React.FC = () => {
             </div>
 
             {/* Quick Actions */}
-            <IonCard style={{ marginTop: '30px' }}>
-              <IonCardHeader>
-                <IonCardTitle>Quick Actions</IonCardTitle>
-              </IonCardHeader>
-              <IonCardContent>
-                <IonList>
-                  <IonItem button onClick={() => history.push('/admin/users')}>
-                    <IonIcon icon={peopleOutline} slot="start" />
+                <IonList className='admin-list'>
+                  <IonItem button onClick={() => history.push('/admin/users')} lines="full">
+                    <IonIcon icon={people} slot="start" />
                     <IonLabel>Manage Users</IonLabel>
                   </IonItem>
 
-                  <IonItem button onClick={() => history.push('/admin/jobs')}>
-                    <IonIcon icon={briefcaseOutline} slot="start" />
+                  <IonItem button onClick={() => history.push('/admin/jobs')} lines="full">
+                    <IonIcon icon={briefcase} slot="start" />
                     <IonLabel>Manage All Jobs</IonLabel>
                   </IonItem>
 
-                  <IonItem button onClick={() => history.push('/admin/analytics')}>
-                    <IonIcon icon={analyticsOutline} slot="start" />
-                    <IonLabel>View Analytics</IonLabel>
+                  {/* Logout - Consistent with Profile.tsx */}
+                  <IonItem 
+                    button 
+                    onClick={handleLogout} 
+                    lines="none" 
+                    style={{ marginTop: '12px' }}
+                  >
+                    <IonIcon icon={logOut} slot="start" color="danger" />
+                    <IonLabel style={{fontWeight: 'bold' }}>
+                      Logout
+                    </IonLabel>
                   </IonItem>
                 </IonList>
-              </IonCardContent>
-            </IonCard>
           </>
         )}
       </IonContent>
