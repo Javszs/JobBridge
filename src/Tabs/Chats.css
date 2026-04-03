@@ -23,7 +23,7 @@
 }
 
 .Chats-label h2{
-  font-size: 1.2rem;
+  font-size: 1.2rem !important;
   color: #1e3a8a !important;
   font-weight: 600;
   margin: 2px !important;
@@ -42,4 +42,11 @@
   border-radius: 20%;
   margin-left: 15px;
   border: 1.6px solid #083579;
+}
+
+.Chat-p{
+  color: #3168b9 !important;
+  font-weight: 600 !important;
+  margin: 2px 0 4px !important;
+  font-size: 0.95rem !important;
 }

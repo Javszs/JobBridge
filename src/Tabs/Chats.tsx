@@ -207,12 +207,7 @@ const Messages: React.FC = () => {
                   <h2>{conv.name}</h2>
 
                   {conv.jobPosition && (
-                    <p style={{ 
-                      color: '#3168b9 !important', 
-                      fontWeight: '600 !important', 
-                      margin: '2px 0 4px !important',
-                      fontSize: '0.95rem !important'
-                    }}>
+                    <p className='Chat-p'>
                       For Position: {conv.jobPosition}
                     </p>
                   )}
