@@ -81,17 +81,17 @@ const ResetPassword: React.FC = () => {
       <IonHeader>
         <IonToolbar color="primary">
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/login" />
+            <IonBackButton defaultHref="/login" style={{ color: '#ffffff' }}/>
           </IonButtons>
-          <IonTitle>Reset Password</IonTitle>
+          <IonTitle style={{ color: '#ffffff' }}>Reset Password</IonTitle>
         </IonToolbar>
       </IonHeader>
 
       <IonContent fullscreen className="ion-padding">
-        <div style={{ maxWidth: '400px', margin: '40px auto 0' }}>
+        <div style={{ maxWidth: '400px', margin: '80px auto 0' }}>
           <div style={{ textAlign: 'center', marginBottom: '30px' }}>
             <h1 style={{ fontSize: '1.8rem', marginBottom: '8px', color: '#ffffff' }}>Create New Password</h1>
-            <p style={{ color: '#ffffff' }}>Your new password must be different from previous ones.</p>
+            <p style={{ color: '#ffffff' }}>Your new password must be different <br/>from your previous passwords.</p>
           </div>
 
           <IonItem lines="none" className="auth-input-item">
@@ -129,16 +129,6 @@ const ResetPassword: React.FC = () => {
           >
             {loading ? <IonSpinner name="crescent" /> : 'Update Password'}
           </IonButton>
-
-          <p style={{ textAlign: 'center', marginTop: '20px', color: '#888' }}>
-            Remember your password?{' '}
-            <span 
-              style={{ color: '#3168b9', cursor: 'pointer', fontWeight: 'bold' }}
-              onClick={() => history.replace('/login')}
-            >
-              Login here
-            </span>
-          </p>
         </div>
 
         <IonToast
@@ -146,7 +136,7 @@ const ResetPassword: React.FC = () => {
           message={toast?.message}
           color={toast?.color}
           duration={4000}
-          position="top"
+          position="bottom"
           onDidDismiss={() => setToast(null)}
         />
       </IonContent>
