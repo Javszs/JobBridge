@@ -41,10 +41,6 @@ const AdminUsers: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return history.replace('/login');
 
-      const { data } = await supabase.from('users').select('role').eq('id', user.id).single();
-      if (data?.role?.toLowerCase() !== 'admin') {
-        history.replace('/tabs/home');
-      }
     };
     checkAdmin();
     fetchUsers();

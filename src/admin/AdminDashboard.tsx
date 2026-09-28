@@ -41,28 +41,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   });
   const [loading, setLoading] = useState(true);
 
-  // Admin Protection
-  useEffect(() => {
-    const checkAdmin = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        history.replace('/login');
-        return;
-      }
-
-      const { data } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single();
-
-      if (data?.role?.toLowerCase() !== 'admin') {
-        history.replace('/tabs/home');
-      }
-    };
-
-    checkAdmin();
-  }, [history]);
 
   // Fetch Stats
   useEffect(() => {
