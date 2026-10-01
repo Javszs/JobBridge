@@ -19,7 +19,7 @@ import {
   useIonViewWillEnter,
   IonAvatar,
 } from '@ionic/react';
-import { send, informationCircle} from 'ionicons/icons';
+import { send, informationCircle } from 'ionicons/icons';
 import { supabase } from '../../supabaseClient';
 import { useHistory } from 'react-router';
 import CryptoJS from 'crypto-js';
@@ -36,7 +36,7 @@ const Message: React.FC = () => {
   const [toast, setToast] = useState<{ message: string; color: 'success' | 'danger' } | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string>('');
   const [otherUserId, setOtherUserId] = useState<string>('');
-  const [otherUserName, setOtherUserName] = useState<string>('Chat'); // ← New
+  const [otherUserName, setOtherUserName] = useState<string>('Chat');
   const [loading, setLoading] = useState(true);
 
   const contentRef = useRef<HTMLIonContentElement>(null);
@@ -53,7 +53,9 @@ const Message: React.FC = () => {
       const key = getSharedKey(sID, rID);
       const bytes = CryptoJS.AES.decrypt(encrypted, key);
       return bytes.toString(CryptoJS.enc.Utf8) || '[Decryption Error]';
-    } catch { return '[Encrypted message]'; }
+    } catch {
+      return '[Encrypted message]';
+    }
   }, []);
 
   const scrollToBottom = useCallback((duration = 300) => {
@@ -90,19 +92,8 @@ const Message: React.FC = () => {
         setOtherUserId(otherId);
         setOtherUserName(other ? `${other.firstname} ${other.lastname}`.trim() : 'Chat');
 
-        // Cache profiles
         profilesRef.current[firstMsg.sender_id] = firstMsg.sender;
         profilesRef.current[firstMsg.receiver_id] = firstMsg.receiver;
-      } else if (recipient) {
-        setOtherUserId(recipient);
-        const { data: userData } = await supabase
-          .from('users')
-          .select('firstname, lastname')
-          .eq('id', recipient)
-          .single();
-        if (userData) {
-          setOtherUserName(`${userData.firstname} ${userData.lastname}`.trim());
-        }
       } else if (recipient) {
         setOtherUserId(recipient);
         const { data: userData } = await supabase
@@ -127,13 +118,12 @@ const Message: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [recipient, decryptMessage, scrollToBottom]);
+  }, [recipient, chatId, decryptMessage, scrollToBottom]);
 
   useIonViewWillEnter(() => {
     fetchMessages();
   });
 
-  // Real-time listener
   useEffect(() => {
     const channel = supabase
       .channel(`chat_${recipient}`)
@@ -184,24 +174,15 @@ const Message: React.FC = () => {
     }
   };
 
-  const getAvatar = (user: any) => {
-    if (user?.profile_photo) {
-      return supabase.storage.from('avatars').getPublicUrl(user.profile_photo).data.publicUrl;
-    }
-    return null;
-  };
-
   const handleRefresh = async (event: CustomEvent<RefresherEventDetail>) => {
     await fetchMessages();
     event.detail.complete();
   };
 
-  // Navigate to specific job page (if chatId is provided)
   const goToJob = () => {
     if (chatId) {
       history.push(`/job/${chatId}`);
     } else {
-      // Perhaps navigate to jobs list or do nothing
       history.push('/tabs/Jobs');
     }
   };
@@ -234,9 +215,8 @@ const Message: React.FC = () => {
             <IonBackButton defaultHref="/tabs/Chats" style={{ color: 'white' }} />
           </IonButtons>
 
-<IonTitle style={{ color: 'white' }}>Chat with {otherUserName}</IonTitle>
+          <IonTitle style={{ color: 'white' }}>Chat with {otherUserName}</IonTitle>
 
-          {/* Info icon → goes to Job.tsx */}
           <IonButtons slot="end">
             <IonButton onClick={goToJob}>
               <IonIcon icon={informationCircle} style={{ color: 'white', fontSize: '2rem', marginRight: '8px' }} />
@@ -272,6 +252,7 @@ const Message: React.FC = () => {
                 )}
 
                 <div style={{ maxWidth: '70%' }}>
+                  {/* Vulnerable container for XSS testing */}
                   <div
                     style={{
                       background: isMe ? 'var(--ion-color-primary)' : '#f0f0f0',
@@ -280,9 +261,8 @@ const Message: React.FC = () => {
                       borderRadius: isMe ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
                       fontSize: '20px',
                     }}
-                  >
-                    {msg.message_text}
-                  </div>
+                    dangerouslySetInnerHTML={{ __html: msg.message_text }}
+                  />
                   <div
                     style={{
                       fontSize: '10px',
