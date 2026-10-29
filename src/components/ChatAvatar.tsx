@@ -29,7 +29,7 @@ const ChatAvatar: React.FC<ChatAvatarProps> = ({ user, isMe }) => {
     );
   }
 
-  // Fallback to initial if no photo
+  // Fallback to initial if no photo in db
   const initial = user?.firstname?.charAt(0) || '?';
 
   return (
